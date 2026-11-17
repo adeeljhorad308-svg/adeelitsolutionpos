@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Optional: USB printer support. required="false" means devices
+         without USB host capability can still install the app; they just
+         won't be able to use the USB printer option (Bluetooth still works). -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+
+    <!-- Bluetooth: only what's needed to talk to an ALREADY-PAIRED printer.
+         No BLUETOOTH_SCAN, no ACCESS_FINE_LOCATION — this app never
+         discovers new/unpaired devices; pairing happens once in Android's
+         own Bluetooth settings, same as before. App remains otherwise
+         fully offline — no INTERNET permission, no network code anywhere. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Only for the automatic backup file written to the shared/public
+         Documents folder (survives an app uninstall, unlike Preferences —
+         see db.js writeExternalBackup). Android 11+ (API 30+) needs NO
+         permission at all to read/write files an app created itself inside
+         Documents (scoped storage); these two are only exercised on
+         Android 10 and older, which is why both are capped at
+         maxSdkVersion 29 — requesting them on newer Android would be a
+         no-op the Play Console flags as unnecessary. Still fully offline:
+         this is local device storage, not network access. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+
+    <!-- No other <uses-permission> entries: the app is fully offline by design.
+         Removed android.permission.INTERNET (Capacitor default boilerplate,
+         unused — no code path in www/*.js makes a network call). Do one
+         install + full manual pass (sale, print, reports, license check,
+         backup/restore) on a real device before relying on this in the
+         signed build, since this repo's automated tests don't cover native
+         permission behavior. -->
+</manifest>

@@ -1,0 +1,8 @@
+{
+	"appId": "com.adeelitsolutions.pos",
+	"appName": "Adeel POS",
+	"webDir": "www",
+	"server": {
+		"androidScheme": "https"
+	}
+}

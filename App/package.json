@@ -1,0 +1,22 @@
+{
+  "name": "adeel-pos-mobile",
+  "version": "2.0.0",
+  "description": "Adeel POS - Android version",
+  "scripts": {
+    "test": "node qa/run-mobile-ux-tests.cjs && node qa/report-date-test.cjs",
+    "sync": "cap sync android",
+    "open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/device": "^6.0.1",
+    "@capacitor/filesystem": "^6.0.4",
+    "@capacitor/preferences": "^6.0.2",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0B0D0C" />
+  <title>Adeel POS</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="activationScreen" class="screen auth-screen hidden">
+    <div class="auth-language lang-switch">
+      <button class="lang-btn pill-toggle" data-lang="ur">اردو</button>
+      <button class="lang-btn pill-toggle" data-lang="en">English</button>
+    </div>
+    <div class="auth-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 200 200" aria-label="Adeel IT Solutions"><path d="M100 20 L168 168 L100 132 L32 168 Z M100 74 L128 150 L100 134 L72 150 Z" fill="#FFFFFF" fill-rule="evenodd"/></svg>
+      </div>
+      <h1>Adeel POS</h1>
+      <p>Powered by Adeel IT Solutions</p>
+    </div>
+    <div class="auth-card">
+      <h2 data-ur="سافٹ ویئر ایکٹیویٹ کریں" data-en="Activate Adeel POS">سافٹ ویئر ایکٹیویٹ کریں</h2>
+      <p class="muted" data-ur="یہ مشین آئی ڈی Adeel IT Solutions کو بھیجیں۔" data-en="Send this Machine ID to Adeel IT Solutions.">یہ مشین آئی ڈی Adeel IT Solutions کو بھیجیں۔</p>
+      <div class="machine-id-box" id="machineIdDisplay">...</div>
+      <label class="field-label" for="licenseKeyInput" data-ur="لائسنس کوڈ" data-en="License key">لائسنس کوڈ</label>
+      <textarea id="licenseKeyInput" class="input-box license-input" rows="3" data-ur-placeholder="یہاں کوڈ درج کریں" data-en-placeholder="Paste your activation key" placeholder="یہاں کوڈ درج کریں"></textarea>
+      <p class="form-message error" id="activationError" aria-live="polite"></p>
+      <button class="btn btn-primary btn-full" id="activateBtn" data-ur="ایکٹیویٹ کریں" data-en="Activate">ایکٹیویٹ کریں</button>
+    </div>
+  </div>
+
+  <div id="loginScreen" class="screen auth-screen hidden">
+    <div class="auth-language lang-switch">
+      <button class="lang-btn pill-toggle" data-lang="ur">اردو</button>
+      <button class="lang-btn pill-toggle" data-lang="en">English</button>
+    </div>
+    <div class="auth-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 200 200" aria-label="Adeel IT Solutions"><path d="M100 20 L168 168 L100 132 L32 168 Z M100 74 L128 150 L100 134 L72 150 Z" fill="#FFFFFF" fill-rule="evenodd"/></svg>
+      </div>
+      <h1 id="loginShopName">میری دکان</h1>
+      <p>Powered by Adeel IT Solutions</p>
+    </div>
+    <div class="auth-card pin-card">
+      <h2 data-ur="پن درج کریں" data-en="Enter your PIN">پن درج کریں</h2>
+      <p class="muted" data-ur="فروخت شروع کرنے کیلئے 4 ہندسوں کا پن درج کریں۔" data-en="Enter the four-digit PIN to continue.">فروخت شروع کرنے کیلئے 4 ہندسوں کا پن درج کریں۔</p>
+      <div class="pin-boxes" id="pinBoxes" dir="ltr">
+        <input maxlength="1" inputmode="numeric" class="pin-box" aria-label="PIN digit 1" />
+        <input maxlength="1" inputmode="numeric" class="pin-box" aria-label="PIN digit 2" />
+        <input maxlength="1" inputmode="numeric" class="pin-box" aria-label="PIN digit 3" />
+        <input maxlength="1" inputmode="numeric" class="pin-box" aria-label="PIN digit 4" />
+      </div>
+      <p class="form-message error" id="loginError" aria-live="polite"></p>
+      <button class="btn btn-primary btn-full" id="loginBtn" data-ur="داخل ہوں" data-en="Login">داخل ہوں</button>
+      <button class="text-button forgot-pin-link" id="forgotPinLink" type="button" data-ur="پن بھول گئے؟" data-en="Forgot PIN?">پن بھول گئے؟</button>
+    </div>
+  </div>
+
+  <div id="forgotPinScreen" class="screen auth-screen hidden">
+    <div class="auth-language lang-switch">
+      <button class="lang-btn pill-toggle" data-lang="ur">اردو</button>
+      <button class="lang-btn pill-toggle" data-lang="en">English</button>
+    </div>
+    <div class="auth-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 200 200" aria-label="Adeel IT Solutions"><path d="M100 20 L168 168 L100 132 L32 168 Z M100 74 L128 150 L100 134 L72 150 Z" fill="#FFFFFF" fill-rule="evenodd"/></svg>
+      </div>
+      <h1 data-ur="پن ری سیٹ کریں" data-en="Reset your PIN">پن ری سیٹ کریں</h1>
+      <p>Powered by Adeel IT Solutions</p>
+    </div>
+
+    <div class="auth-card" id="resetStep1">
+      <h2 data-ur="مشین آئی ڈی بھیجیں" data-en="Send your Machine ID">مشین آئی ڈی بھیجیں</h2>
+      <p class="muted" data-ur="یہ مشین آئی ڈی Adeel IT Solutions کو بھیجیں، وہ آپ کو ایک ری سیٹ کوڈ دیں گے۔" data-en="Send this Machine ID to Adeel IT Solutions — they will send you a reset code.">یہ مشین آئی ڈی Adeel IT Solutions کو بھیجیں، وہ آپ کو ایک ری سیٹ کوڈ دیں گے۔</p>
+      <div class="machine-id-box" id="resetMachineIdDisplay">...</div>
+      <label class="field-label" for="resetKeyInput" data-ur="ری سیٹ کوڈ" data-en="Reset code">ری سیٹ کوڈ</label>
+      <textarea id="resetKeyInput" class="input-box license-input" rows="3" data-ur-placeholder="یہاں کوڈ درج کریں" data-en-placeholder="Paste your reset code" placeholder="یہاں کوڈ درج کریں"></textarea>
+      <p class="form-message error" id="resetKeyError" aria-live="polite"></p>
+      <button class="btn btn-primary btn-full" id="verifyResetKeyBtn" data-ur="تصدیق کریں" data-en="Verify">تصدیق کریں</button>
+      <button class="text-button forgot-pin-link" id="backToLoginBtn" type="button" data-ur="‹ لاگ ان پر واپس جائیں" data-en="‹ Back to login">‹ لاگ ان پر واپس جائیں</button>
+    </div>
+
+    <div class="auth-card hidden" id="resetStep2">
+      <h2 data-ur="نیا پن بنائیں" data-en="Set a new PIN">نیا پن بنائیں</h2>
+      <p class="muted" data-ur="اپنی دکان کیلئے 4 ہندسوں کا نیا پن درج کریں۔" data-en="Enter a new four-digit PIN for your shop.">اپنی دکان کیلئے 4 ہندسوں کا نیا پن درج کریں۔</p>
+      <label class="field-label" for="newResetPin" data-ur="نیا پن" data-en="New PIN">نیا پن</label>
+      <input id="newResetPin" type="password" inputmode="numeric" maxlength="4" class="input-box" autocomplete="off" />
+      <label class="field-label" for="confirmResetPin" data-ur="پن دوبارہ درج کریں" data-en="Confirm PIN">پن دوبارہ درج کریں</label>
+      <input id="confirmResetPin" type="password" inputmode="numeric" maxlength="4" class="input-box" autocomplete="off" />
+      <p class="form-message error" id="resetPinError" aria-live="polite"></p>
+      <button class="btn btn-primary btn-full" id="saveResetPinBtn" data-ur="پن محفوظ کریں" data-en="Save PIN">پن محفوظ کریں</button>
+    </div>
+  </div>
+
+  <div id="mainApp" class="app-shell hidden">
+    <header class="topnav">
+      <div class="topnav-brand">
+        <svg viewBox="0 0 200 200" class="topnav-logo" aria-hidden="true"><path d="M100 20 L168 168 L100 132 L32 168 Z M100 74 L128 150 L100 134 L72 150 Z" fill="#FFFFFF" fill-rule="evenodd"/></svg>
+        <div>
+          <strong id="topShopName">میری دکان</strong>
+          <span class="topnav-subtitle" id="topScreenTitle" data-ur="فروخت" data-en="Sale">فروخت</span>
+        </div>
+      </div>
+      <button id="topStatusButton" class="icon-button status-button hidden" aria-label="Status">
+        <span class="status-dot"></span>
+        <span id="topStatusText"></span>
+      </button>
+    </header>
+
+    <div id="persistentBanner" class="persistent-banner hidden" role="status">
+      <span id="persistentBannerText"></span>
+      <button id="persistentBannerAction" class="text-button hidden"></button>
+      <button id="dismissBannerBtn" class="icon-button small" aria-label="Dismiss">×</button>
+    </div>
+
+    <main class="content">
+      <section id="billingScreen" class="content-screen sale-screen">
+        <div id="expiredSaleState" class="license-lock hidden">
+          <strong data-ur="لائسنس کی تجدید ضروری ہے" data-en="License renewal required">لائسنس کی تجدید ضروری ہے</strong>
+          <span data-ur="پرانا ڈیٹا محفوظ ہے۔ نئی فروخت کیلئے لائسنس تجدید کریں۔" data-en="Your old data is safe. Renew the license to create new sales.">پرانا ڈیٹا محفوظ ہے۔ نئی فروخت کیلئے لائسنس تجدید کریں۔</span>
+          <button class="btn btn-primary" id="openRenewalBtn" data-ur="لائسنس تجدید کریں" data-en="Renew license">لائسنس تجدید کریں</button>
+        </div>
+        <div class="sale-toolbar">
+          <label class="search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="saleSearchInput" type="search" autocomplete="off" data-ur-placeholder="تمام مصنوعات تلاش کریں" data-en-placeholder="Search all products" placeholder="تمام مصنوعات تلاش کریں" />
+          </label>
+          <div class="sale-heading-row">
+            <div>
+              <p class="eyebrow" data-ur="فوری بلنگ" data-en="Fast billing">فوری بلنگ</p>
+              <h2 data-ur="مصنوعات" data-en="Products">مصنوعات</h2>
+            </div>
+            <button id="openManualItemBtn" class="btn btn-secondary btn-compact" data-ur="+ اپنی چیز" data-en="+ Custom item">+ اپنی چیز</button>
+          </div>
+          <div class="printer-action-row bill-actions-row">
+            <button id="holdBillBtn" class="btn btn-secondary btn-compact" type="button" data-ur="⏸ ہولڈ بل" data-en="⏸ Hold bill">⏸ ہولڈ بل</button>
+            <button id="newBillBtn" class="btn btn-secondary btn-compact" type="button" data-ur="+ نیا بل" data-en="+ New bill">+ نیا بل</button>
+            <button id="heldBillsBtn" class="btn btn-secondary btn-compact" type="button" data-ur="ہولڈ بلز" data-en="Held bills">ہولڈ بلز</button>
+          </div>
+          <div id="saleSectionBar" class="section-chip-bar" aria-label="Product sections"></div>
+        </div>
+        <div id="saleProductScroller" class="product-grid-scroll">
+          <div id="quickItemGrid" class="quick-item-grid"></div>
+          <div id="quickItemEmptyMsg" class="empty-state hidden">
+            <strong data-ur="کوئی مصنوعات نہیں ملیں" data-en="No products found">کوئی مصنوعات نہیں ملیں</strong>
+            <span data-ur="تلاش تبدیل کریں یا مصنوعات شامل کریں۔" data-en="Change the search or add products.">تلاش تبدیل کریں یا مصنوعات شامل کریں۔</span>
+          </div>
+        </div>
+        <button id="reviewSaleBtn" class="sale-cart-bar" disabled>
+          <span class="sale-cart-summary"><strong id="saleCartQty">0</strong> <span data-ur="مقدار" data-en="qty">مقدار</span><span class="dot-separator">•</span><strong id="saleCartTotal">0 Rs</strong></span>
+          <span class="sale-cart-action" data-ur="بل دیکھیں" data-en="Review sale">بل دیکھیں</span>
+        </button>
+      </section>
+
+      <section id="reportsScreen" class="content-screen reports-screen hidden">
+        <div class="screen-toolbar">
+          <div>
+            <p class="eyebrow" data-ur="فروخت کی تاریخ" data-en="Sales history">فروخت کی تاریخ</p>
+            <h2 data-ur="رپورٹس" data-en="Reports">رپورٹس</h2>
+          </div>
+          <button id="exportReportBtn" class="btn btn-secondary btn-compact" data-ur="PDF / پرنٹ" data-en="PDF / Print">PDF / پرنٹ</button>
+        </div>
+        <div class="report-tabs tab-pill-bar" role="tablist">
+          <button class="report-tab tab-pill active" data-tab="today" data-ur="آج" data-en="Today">آج</button>
+          <button class="report-tab tab-pill" data-tab="month" data-ur="اس ماہ" data-en="This month">اس ماہ</button>
+        </div>
+        <div id="reportSummary" class="compact-summary"></div>
+        <p id="profitNote" class="form-message hidden"></p>
+        <div class="sales-graph-card">
+          <p class="pane-intro sales-graph-title" data-ur="پچھلے 7 دن کی فروخت" data-en="Sales — last 7 days">پچھلے 7 دن کی فروخت</p>
+          <canvas id="salesGraphCanvas" class="sales-graph-canvas" height="140"></canvas>
+        </div>
+        <div id="reportList" class="scroll-list invoice-list"></div>
+      </section>
+
+      <section id="productsScreen" class="content-screen products-screen hidden">
+        <div class="screen-toolbar">
+          <div>
+            <p class="eyebrow" data-ur="کیٹلاگ" data-en="Catalogue">کیٹلاگ</p>
+            <h2 data-ur="مصنوعات" data-en="Products">مصنوعات</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button id="addProductBtn" class="btn btn-primary btn-compact" data-ur="+ مصنوعات" data-en="+ Product">+ مصنوعات</button>
+          </div>
+        </div>
+        <div class="products-subtabs tab-pill-bar" role="tablist">
+          <button class="products-subtab tab-pill active" data-product-tab="products" data-ur="مصنوعات" data-en="Products">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+            <span data-ur="مصنوعات" data-en="Products">مصنوعات</span>
+          </button>
+          <button class="products-subtab tab-pill" data-product-tab="sections" data-ur="سیکشن" data-en="Sections">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            <span data-ur="سیکشن" data-en="Sections">سیکشن</span>
+          </button>
+        </div>
+        <div id="productsPane" class="pane-fill">
+          <p class="pane-intro" data-ur="اپنی تمام مصنوعات یہاں شامل اور مینج کریں — CSV میں نام، قیمت، سیکشن، اسٹاک اور خرید قیمت سب ایک ہی فائل میں شامل ہو سکتے ہیں۔" data-en="Add and manage every product here — one CSV can carry name, price, section, stock and cost all together.">اپنی تمام مصنوعات یہاں شامل اور مینج کریں — CSV میں نام، قیمت، سیکشن، اسٹاک اور خرید قیمت سب ایک ہی فائل میں شامل ہو سکتے ہیں۔</p>
+          <div class="printer-action-row">
+            <button id="exportProductsCsvBtn" class="btn btn-secondary btn-compact" type="button" data-ur="CSV ایکسپورٹ" data-en="Export CSV">CSV ایکسپورٹ</button>
+            <button id="importProductsBtn" class="btn btn-secondary btn-compact" type="button" data-ur="CSV امپورٹ" data-en="Import CSV">CSV امپورٹ</button>
+          </div>
+          <label class="search-box compact-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="productSearchInput" type="search" autocomplete="off" data-ur-placeholder="مصنوعات تلاش کریں" data-en-placeholder="Search products" placeholder="مصنوعات تلاش کریں" />
+          </label>
+          <div id="productCountText" class="list-caption"></div>
+          <div id="productManageList" class="scroll-list product-manage-list"></div>
+        </div>
+        <div id="sectionsPane" class="pane-fill hidden">
+          <p class="pane-intro" data-ur="سیکشن آپ کی مصنوعات کو زمروں (جیسے مشروبات، بیکری) میں تقسیم کرتے ہیں۔" data-en="Sections group your products into categories (like Drinks, Bakery) for faster billing.">سیکشن آپ کی مصنوعات کو زمروں (جیسے مشروبات، بیکری) میں تقسیم کرتے ہیں۔</p>
+          <label class="toggle-row">
+            <span><strong data-ur="مصنوعات کے سیکشن" data-en="Product sections">مصنوعات کے سیکشن</strong><small data-ur="ضرورت کے مطابق فعال یا بند کریں" data-en="Enable only when your shop needs them">ضرورت کے مطابق فعال یا بند کریں</small></span>
+            <input id="sectionsEnabledToggle" type="checkbox" role="switch" />
+          </label>
+          <button id="addSectionBtn" class="btn btn-secondary btn-full" data-ur="+ نیا سیکشن" data-en="+ New section">+ نیا سیکشن</button>
+          <div id="sectionManageList" class="scroll-list section-manage-list"></div>
+        </div>
+      </section>
+
+      <section id="stockScreen" class="content-screen stock-screen hidden">
+        <div class="screen-toolbar">
+          <div>
+            <p class="eyebrow" data-ur="انوینٹری" data-en="Inventory">انوینٹری</p>
+            <h2 data-ur="اسٹاک" data-en="Stock">اسٹاک</h2>
+          </div>
+        </div>
+        <div id="stockPane" class="pane-fill">
+          <p class="pane-intro" data-ur="ہر مصنوعات کا اسٹاک لیول یہاں مینج کریں۔ نام، قیمت، سیکشن سمیت مکمل CSV اب مصنوعات اسکرین پر ہے — یہاں صرف اسٹاک کی تبدیلیوں کی تاریخ دیکھیں۔" data-en="Manage every product's stock level here. The full CSV (name, price, section, stock and cost together) now lives on the Products screen — check History here for every past stock change.">ہر مصنوعات کا اسٹاک لیول یہاں مینج کریں۔ نام، قیمت، سیکشن سمیت مکمل CSV اب مصنوعات اسکرین پر ہے — یہاں صرف اسٹاک کی تبدیلیوں کی تاریخ دیکھیں۔</p>
+          <label class="toggle-row">
+            <span><strong data-ur="اسٹاک ٹریکنگ" data-en="Stock tracking">اسٹاک ٹریکنگ</strong><small data-ur="بند ہونے پر 'ختم/کم' الرٹس کہیں نہیں دکھیں گے" data-en="When off, no 'out/low' alerts show anywhere, including the Stock tab badge">بند ہونے پر 'ختم/کم' الرٹس کہیں نہیں دکھیں گے</small></span>
+            <input id="stockTrackingEnabledToggle" type="checkbox" role="switch" />
+          </label>
+          <div id="stockSummary" class="stock-summary"></div>
+          <button id="stockHistoryBtn" class="btn btn-secondary btn-full" type="button" data-ur="تاریخ دیکھیں" data-en="View history">تاریخ دیکھیں</button>
+          <label class="search-box compact-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="stockSearchInput" type="search" autocomplete="off" data-ur-placeholder="اسٹاک تلاش کریں" data-en-placeholder="Search stock" placeholder="اسٹاک تلاش کریں" />
+          </label>
+          <label class="toggle-row compact-toggle">
+            <span><strong data-ur="صرف کم اسٹاک" data-en="Only low stock">صرف کم اسٹاک</strong><small data-ur="جن کا اسٹاک ختم ہونے والا ہے" data-en="Items running out soon">جن کا اسٹاک ختم ہونے والا ہے</small></span>
+            <input id="lowStockOnlyToggle" type="checkbox" role="switch" />
+          </label>
+          <div id="stockCountText" class="list-caption"></div>
+          <div id="stockManageList" class="scroll-list product-manage-list"></div>
+        </div>
+      </section>
+
+      <section id="moreScreen" class="content-screen more-screen hidden">
+        <div class="screen-toolbar">
+          <div><p class="eyebrow" data-ur="کنٹرول" data-en="Control">کنٹرول</p><h2 data-ur="مزید" data-en="More">مزید</h2></div>
+        </div>
+        <div class="settings-list scroll-list">
+          <button class="settings-row" data-settings-panel="shop"><span class="settings-icon">⌂</span><span><strong data-ur="دکان اور رسید" data-en="Shop & receipt">دکان اور رسید</strong><small data-ur="نام، فون اور رسید کی تفصیلات" data-en="Name, phone and receipt details">نام، فون اور رسید کی تفصیلات</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="printer"><span class="settings-icon">▣</span><span><strong data-ur="پرنٹر" data-en="Printer">پرنٹر</strong><small data-ur="ٹیسٹ پرنٹ اور پرنٹر کی حالت" data-en="Test print and printer status">ٹیسٹ پرنٹ اور پرنٹر کی حالت</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="backup"><span class="settings-icon">↻</span><span><strong data-ur="بیک اپ اور بحالی" data-en="Backup & recovery">بیک اپ اور بحالی</strong><small id="backupStatusSummary" data-ur="آخری بیک اپ چیک کریں" data-en="Check your last backup">آخری بیک اپ چیک کریں</small></span><b>›</b></button>
+          <button class="settings-row" id="productOrganizationShortcut"><span class="settings-icon">▦</span><span><strong data-ur="سیکشن شارٹ کٹ" data-en="Sections shortcut">سیکشن شارٹ کٹ</strong><small data-ur="مصنوعات ⟵ سیکشن ٹیب کھولتا ہے، الگ اسکرین نہیں" data-en="Opens the Sections tab inside Products — not a separate screen">مصنوعات ⟵ سیکشن ٹیب کھولتا ہے، الگ اسکرین نہیں</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="license"><span class="settings-icon">◇</span><span><strong data-ur="لائسنس" data-en="License">لائسنس</strong><small id="licenseStatusSummary"></small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="security"><span class="settings-icon">●</span><span><strong data-ur="پن اور سیکیورٹی" data-en="PIN & security">پن اور سیکیورٹی</strong><small data-ur="چار ہندسوں کا پن تبدیل کریں" data-en="Change the four-digit PIN">چار ہندسوں کا پن تبدیل کریں</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="language"><span class="settings-icon">文</span><span><strong data-ur="زبان" data-en="Language">زبان</strong><small data-ur="اردو یا English" data-en="English or Urdu">اردو یا English</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="about"><span class="settings-icon">i</span><span><strong data-ur="مدد اور معلومات" data-en="Help & about">مدد اور معلومات</strong><small>Adeel IT Solutions</small></span><b>›</b></button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottomnav" aria-label="Primary navigation">
+      <button class="nav-btn active" data-screen="billing"><svg viewBox="0 0 24 24"><path d="M3 3h2l1.8 10.2a2 2 0 0 0 2 1.7h7.9a2 2 0 0 0 2-1.6L20 7H6M9 20h.01M17 20h.01"/></svg><span data-ur="فروخت" data-en="Sale">فروخت</span></button>
+      <button class="nav-btn" data-screen="reports"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span data-ur="رپورٹس" data-en="Reports">رپورٹس</span></button>
+      <button class="nav-btn" data-screen="products"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg><span data-ur="مصنوعات" data-en="Products">مصنوعات</span></button>
+      <button class="nav-btn" data-screen="stock"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7M12 11v10"/></svg><span data-ur="اسٹاک" data-en="Stock">اسٹاک</span><b id="stockAlertBadge" class="nav-badge hidden"></b></button>
+      <button class="nav-btn" data-screen="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span data-ur="مزید" data-en="More">مزید</span></button>
+    </nav>
+  </div>
+
+  <section id="checkoutTask" class="task-screen hidden" aria-label="Review sale">
+    <header class="task-header"><button class="back-button" data-close-task>‹</button><div><p class="eyebrow" data-ur="موجودہ فروخت" data-en="Current sale">موجودہ فروخت</p><h2 data-ur="بل دیکھیں" data-en="Review sale">بل دیکھیں</h2></div><button id="checkoutAddItemsBtn" class="btn btn-secondary btn-compact" data-ur="+ مصنوعات" data-en="+ Items">+ مصنوعات</button></header>
+    <div class="checkout-actions">
+      <button id="checkoutCustomerBtn" class="action-chip" data-ur="+ کسٹمر" data-en="+ Customer">+ کسٹمر</button>
+      <button id="checkoutDiscountBtn" class="action-chip" data-ur="+ ڈسکاؤنٹ" data-en="+ Discount">+ ڈسکاؤنٹ</button>
+      <button id="checkoutPaymentBtn" class="action-chip" data-ur="Cash" data-en="Cash">Cash</button>
+    </div>
+    <div id="checkoutCartList" class="task-scroll checkout-list"></div>
+    <footer class="checkout-footer">
+      <div class="checkout-summary"><span data-ur="سب ٹوٹل" data-en="Subtotal">سب ٹوٹل</span><strong id="checkoutSubtotal">0 Rs</strong><span id="checkoutDiscountLabel" class="hidden" data-ur="ڈسکاؤنٹ" data-en="Discount">ڈسکاؤنٹ</span><strong id="checkoutDiscountValue" class="hidden">0 Rs</strong></div>
+      <div class="checkout-total"><span data-ur="کل" data-en="Total">کل</span><strong id="checkoutTotal">0 Rs</strong></div>
+      <div class="tender-row">
+        <label class="tender-field"><span data-ur="وصول شدہ رقم" data-en="Tendered">وصول شدہ رقم</span><input id="tenderedInput" class="input-box" type="number" inputmode="decimal" placeholder="0" /></label>
+        <div class="tender-field"><span data-ur="بقایا" data-en="Change">بقایا</span><strong id="changeDueValue">0 Rs</strong></div>
+      </div>
+      <button id="completeSaleBtn" class="btn btn-primary btn-full btn-large" data-ur="فروخت مکمل اور پرنٹ کریں" data-en="Complete & print">فروخت مکمل اور پرنٹ کریں</button>
+      <p id="checkoutMessage" class="form-message" aria-live="polite"></p>
+    </footer>
+  </section>
+
+  <section id="paymentMethodTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="ادائیگی کا طریقہ" data-en="Payment method">ادائیگی کا طریقہ</h2></header><div class="task-form"><div id="paymentMethodList" class="payment-method-list"></div></div></section>
+
+  <section id="productPickerTask" class="task-screen hidden">
+    <header class="task-header"><button class="back-button" data-close-task>‹</button><div><p class="eyebrow" data-ur="بل میں شامل کریں" data-en="Add to sale">بل میں شامل کریں</p><h2 data-ur="مصنوعات منتخب کریں" data-en="Select products">مصنوعات منتخب کریں</h2></div><button class="btn btn-primary btn-compact" data-close-task data-ur="مکمل" data-en="Done">مکمل</button></header>
+    <div class="picker-toolbar"><label class="search-box compact-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pickerSearchInput" type="search" data-ur-placeholder="مصنوعات تلاش کریں" data-en-placeholder="Search products" placeholder="مصنوعات تلاش کریں" /></label><div id="pickerSectionBar" class="section-chip-bar"></div></div>
+    <div class="task-scroll"><div id="pickerProductGrid" class="quick-item-grid picker-grid"></div></div>
+  </section>
+
+  <section id="manualItemTask" class="task-screen hidden">
+    <header class="task-header"><button class="back-button" data-close-task>‹</button><div><p class="eyebrow" data-ur="فوری اندراج" data-en="Quick entry">فوری اندراج</p><h2 data-ur="اپنی چیز شامل کریں" data-en="Add a custom item">اپنی چیز شامل کریں</h2></div></header>
+    <div class="task-form">
+      <label class="field-label" for="manualItemName" data-ur="سامان کا نام" data-en="Item name">سامان کا نام</label><input id="manualItemName" class="input-box" autocomplete="off" />
+      <label class="field-label" for="manualItemPrice" data-ur="قیمت" data-en="Price">قیمت</label><input id="manualItemPrice" class="input-box" type="number" inputmode="decimal" />
+      <label class="field-label" for="manualItemQty" data-ur="مقدار" data-en="Quantity">مقدار</label><input id="manualItemQty" class="input-box" type="number" inputmode="numeric" value="1" />
+      <p id="manualItemMessage" class="form-message error"></p>
+      <button id="addManualItemBtn" class="btn btn-primary btn-full" data-ur="بل میں شامل کریں" data-en="Add to sale">بل میں شامل کریں</button>
+    </div>
+  </section>
+
+  <section id="heldBillsTask" class="task-screen hidden">
+    <header class="task-header"><button class="back-button" data-close-task>‹</button><div><p class="eyebrow" data-ur="پارک شدہ بل" data-en="Parked bills">پارک شدہ بل</p><h2 data-ur="ہولڈ بلز" data-en="Held bills">ہولڈ بلز</h2></div></header>
+    <div class="picker-toolbar">
+      <label class="search-box compact-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="heldBillsSearchInput" type="search" autocomplete="off" data-ur-placeholder="ہولڈ بلز تلاش کریں" data-en-placeholder="Search held bills" placeholder="ہولڈ بلز تلاش کریں" />
+      </label>
+      <div id="heldBillsCountText" class="list-caption"></div>
+    </div>
+    <div id="heldBillsList" class="task-scroll invoice-list"></div>
+  </section>
+
+  <section id="customerTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="کسٹمر" data-en="Customer">کسٹمر</h2></header><div class="task-form"><label class="field-label" data-ur="کسٹمر کا نام (اختیاری)" data-en="Customer name (optional)">کسٹمر کا نام (اختیاری)</label><input id="customerDraftInput" class="input-box" /><button id="saveCustomerBtn" class="btn btn-primary btn-full" data-ur="محفوظ کریں" data-en="Save">محفوظ کریں</button></div></section>
+  <section id="discountTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="ڈسکاؤنٹ" data-en="Discount">ڈسکاؤنٹ</h2></header><div class="task-form"><label class="field-label" data-ur="ڈسکاؤنٹ رقم" data-en="Discount amount">ڈسکاؤنٹ رقم</label><input id="discountDraftInput" class="input-box" type="number" inputmode="decimal" value="0" /><p id="discountMessage" class="form-message error"></p><button id="saveDiscountBtn" class="btn btn-primary btn-full" data-ur="لاگو کریں" data-en="Apply">لاگو کریں</button></div></section>
+
+  <section id="stockEditorTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 id="stockEditorTitle" data-ur="اسٹاک" data-en="Stock">اسٹاک</h2></header><div class="task-form"><div id="stockEditorProduct" class="setting-intro"></div><label class="field-label" data-ur="موجودہ اسٹاک" data-en="Current stock">موجودہ اسٹاک</label><div class="stock-stepper"><button id="stockMinusBtn" class="btn btn-secondary" type="button">−</button><input id="stockValueInput" class="input-box" type="number" inputmode="numeric" /><button id="stockPlusBtn" class="btn btn-secondary" type="button">+</button></div><div class="stock-quick-row"><button class="btn btn-secondary btn-compact stock-quick" data-add="5" type="button">+5</button><button class="btn btn-secondary btn-compact stock-quick" data-add="10" type="button">+10</button><button class="btn btn-secondary btn-compact stock-quick" data-add="50" type="button">+50</button><button class="btn btn-secondary btn-compact stock-quick" data-add="100" type="button">+100</button></div><label class="field-label" data-ur="فروخت قیمت" data-en="Sale price">فروخت قیمت</label><input id="stockSalePriceInput" class="input-box" type="number" inputmode="decimal" /><label class="field-label" data-ur="خرید قیمت (منافع کے لیے)" data-en="Purchase price (for profit)">خرید قیمت (منافع کے لیے)</label><input id="stockCostInput" class="input-box" type="number" inputmode="decimal" /><small class="field-hint" data-ur="اختیاری۔ خالی چھوڑیں تو اس مصنوعات کا منافع شمار نہیں ہوگا۔" data-en="Optional. Leave empty and this product is left out of profit.">اختیاری۔ خالی چھوڑیں تو اس مصنوعات کا منافع شمار نہیں ہوگا۔</small><label class="field-label" data-ur="کم اسٹاک الرٹ" data-en="Low stock alert at">کم اسٹاک الرٹ</label><input id="stockLowAtInput" class="input-box" type="number" inputmode="numeric" /><label class="toggle-row compact-toggle"><span><strong data-ur="اسٹاک ٹریک کریں" data-en="Track stock">اسٹاک ٹریک کریں</strong><small data-ur="بند کریں تو فروخت پر اسٹاک کم نہیں ہوگا" data-en="Turn off and sales will not reduce this item's stock">بند کریں تو فروخت پر اسٹاک کم نہیں ہوگا</small></span><input id="stockTrackToggle" type="checkbox" role="switch" /></label><p id="stockEditorMessage" class="form-message"></p><button id="saveStockBtn" class="btn btn-primary btn-full" data-ur="محفوظ کریں" data-en="Save">محفوظ کریں</button></div></section>
+  <section id="productEditorTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 id="productEditorTitle" data-ur="مصنوعات" data-en="Product">مصنوعات</h2></header><div class="task-form"><label class="field-label" data-ur="نام" data-en="Name">نام</label><input id="productNameInput" class="input-box" /><label class="field-label" data-ur="قیمت" data-en="Price">قیمت</label><input id="productPriceInput" class="input-box" type="number" inputmode="decimal" /><label class="field-label" data-ur="سیکشن (اختیاری)" data-en="Section (optional)">سیکشن (اختیاری)</label><select id="productSectionSelect" class="input-box"></select><label class="toggle-row compact-toggle"><span><strong data-ur="فوری مصنوعات" data-en="Quick product">فوری مصنوعات</strong><small data-ur="فروخت کی سکرین کے Quick فلٹر میں دکھائیں" data-en="Show in the Quick filter on the sale screen">فروخت کی سکرین کے Quick فلٹر میں دکھائیں</small></span><input id="productQuickToggle" type="checkbox" role="switch" /></label><p id="productEditorMessage" class="form-message error"></p><button id="saveProductBtn" class="btn btn-primary btn-full" data-ur="محفوظ کریں" data-en="Save product">محفوظ کریں</button><button id="deleteProductBtn" class="btn btn-danger-text btn-full hidden" data-ur="مصنوعات حذف کریں" data-en="Delete product">مصنوعات حذف کریں</button></div></section>
+
+  <section id="sectionEditorTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="سیکشن" data-en="Section">سیکشن</h2></header><div class="task-form"><label class="field-label" data-ur="سیکشن کا نام" data-en="Section name">سیکشن کا نام</label><input id="sectionNameInput" class="input-box" maxlength="40" /><p id="sectionEditorMessage" class="form-message error"></p><button id="saveSectionBtn" class="btn btn-primary btn-full" data-ur="محفوظ کریں" data-en="Save section">محفوظ کریں</button><button id="deleteSectionBtn" class="btn btn-danger-text btn-full hidden" data-ur="سیکشن حذف کریں" data-en="Delete section">سیکشن حذف کریں</button></div></section>
+
+
+  <section id="invoiceDetailTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><div><p class="eyebrow" data-ur="انوائس" data-en="Invoice">انوائس</p><h2 id="invoiceDetailNumber">INV-000000</h2></div></header><div id="invoiceDetailBody" class="task-scroll invoice-detail-body"></div><footer class="task-footer three-actions"><button id="reprintInvoiceBtn" class="btn btn-primary" data-ur="دوبارہ پرنٹ" data-en="Reprint">دوبارہ پرنٹ</button><button id="invoicePdfBtn" class="btn btn-secondary" data-ur="PDF / پرنٹ" data-en="PDF / Print">PDF / پرنٹ</button></footer></section>
+
+  <section id="csvImportTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="CSV درآمد" data-en="CSV import">CSV درآمد</h2></header><div class="task-form"><div id="csvImportSummary" class="import-summary"></div><label id="enableSectionsImportRow" class="toggle-row compact-toggle hidden"><span><strong data-ur="سیکشن فعال کریں" data-en="Enable sections">سیکشن فعال کریں</strong><small data-ur="درآمد کے بعد سیکشن فلٹر دکھائیں" data-en="Show section filters after import">درآمد کے بعد سیکشن فلٹر دکھائیں</small></span><input id="enableSectionsAfterImport" type="checkbox" role="switch" /></label><p id="csvImportMessage" class="form-message error"></p><button id="confirmCsvImportBtn" class="btn btn-primary btn-full" data-ur="مصنوعات درآمد کریں" data-en="Import products">مصنوعات درآمد کریں</button></div></section>
+  <section id="stockHistoryTask" class="task-screen hidden"><header class="task-header"><button class="back-button" data-close-task>‹</button><h2 data-ur="اسٹاک کی تاریخ" data-en="Stock history">اسٹاک کی تاریخ</h2></header><div id="stockHistoryList" class="task-scroll scroll-list"></div></section>
+
+  <section id="settingsTask" class="task-screen hidden">
+    <header class="task-header"><button class="back-button" data-close-task>‹</button><h2 id="settingsTaskTitle" data-ur="سیٹنگز" data-en="Settings">سیٹنگز</h2></header>
+    <div class="task-scroll settings-panels">
+      <div class="settings-panel hidden" data-panel="shop">
+        <label class="field-label" data-ur="دکان کا نام" data-en="Shop name">دکان کا نام</label><input id="settingShopName" class="input-box" />
+        <label class="field-label" data-ur="فون نمبر" data-en="Phone number">فون نمبر</label><input id="settingShopPhone" class="input-box" inputmode="tel" />
+        <label class="field-label" data-ur="پتہ" data-en="Address">پتہ</label><input id="settingShopAddress" class="input-box" />
+        <label class="field-label" data-ur="لوگو (PNG)" data-en="Logo (PNG)">لوگو (PNG)</label>
+        <div class="logo-upload-row">
+          <div id="shopLogoPreview" class="logo-preview"></div>
+          <div class="logo-upload-actions">
+            <button id="uploadLogoBtn" class="btn btn-secondary btn-compact" type="button" data-ur="لوگو منتخب کریں" data-en="Choose logo">لوگو منتخب کریں</button>
+            <button id="removeLogoBtn" class="btn btn-danger-text btn-compact hidden" type="button" data-ur="ہٹائیں" data-en="Remove">ہٹائیں</button>
+          </div>
+          <input id="shopLogoInput" type="file" accept="image/png" class="hidden" />
+        </div>
+        <p id="shopSaveMsg" class="form-message success"></p>
+        <button id="saveShopDetailsBtn" class="btn btn-primary btn-full" data-ur="محفوظ کریں" data-en="Save details">محفوظ کریں</button>
+      </div>
+      <div class="settings-panel hidden" data-panel="printer">
+        <div class="setting-intro">
+          <strong data-ur="تھرمل پرنٹر" data-en="Thermal printer">تھرمل پرنٹر</strong>
+          <span data-ur="بلوٹوتھ کے لیے پہلے Android کی بلوٹوتھ سیٹنگز میں پرنٹر جوڑیں۔ USB کے لیے کیبل لگا کر منتخب کریں۔" data-en="For Bluetooth, pair your printer in Android Bluetooth settings first. For USB, plug in the cable and select it.">بلوٹوتھ کے لیے پہلے Android کی بلوٹوتھ سیٹنگز میں پرنٹر جوڑیں۔ USB کے لیے کیبل لگا کر منتخب کریں۔</span>
+        </div>
+        <p id="printerStatusBox" class="form-message"></p>
+
+        <div id="printerConnectedActions" class="hidden">
+          <div class="printer-action-row">
+            <button id="printerReconnectBtn" class="btn btn-secondary" data-ur="دوبارہ رابطہ" data-en="Reconnect">دوبارہ رابطہ</button>
+            <button id="printerDisconnectBtn" class="btn btn-secondary" data-ur="منقطع کریں" data-en="Disconnect">منقطع کریں</button>
+          </div>
+          <button id="printerChangeBtn" class="btn btn-danger-text btn-full" data-ur="پرنٹر تبدیل کریں" data-en="Change printer">پرنٹر تبدیل کریں</button>
+        </div>
+
+        <label class="field-label" data-ur="کنکشن کی قسم" data-en="Connection type">کنکشن کی قسم</label>
+        <div class="lang-switch">
+          <button id="printerTransportBtBtn" class="pill-toggle" type="button">Bluetooth</button>
+          <button id="printerTransportUsbBtn" class="pill-toggle" type="button">USB</button>
+        </div>
+
+        <label class="field-label" data-ur="جوڑے ہوئے آلات" data-en="Paired devices">جوڑے ہوئے آلات</label>
+        <div id="printerPairedList"></div>
+
+        <label class="field-label" data-ur="کاغذ کی چوڑائی" data-en="Paper width">کاغذ کی چوڑائی</label>
+        <div class="lang-switch">
+          <button id="printer58Btn" class="pill-toggle" type="button">58mm</button>
+          <button id="printer80Btn" class="pill-toggle" type="button">80mm</button>
+        </div>
+
+        <label class="toggle-row compact-toggle">
+          <span><strong data-ur="خودکار پرنٹ" data-en="Auto print">خودکار پرنٹ</strong><small data-ur="فروخت مکمل ہوتے ہی خودکار پرنٹ کریں" data-en="Print automatically as soon as a sale completes">فروخت مکمل ہوتے ہی خودکار پرنٹ کریں</small></span>
+          <input id="printerAutoPrintToggle" type="checkbox" role="switch" />
+        </label>
+
+        <p id="printerTestMessage" class="form-message"></p>
+        <button id="testPrintBtn" class="btn btn-primary btn-full" data-ur="ٹیسٹ پرنٹ" data-en="Test print">ٹیسٹ پرنٹ</button>
+      </div>
+      <div class="settings-panel hidden" data-panel="backup">
+        <div class="backup-status-card"><span data-ur="آخری خودکار بیک اپ" data-en="Last automatic backup">آخری خودکار بیک اپ</span><strong id="lastBackupStatus">—</strong></div>
+        <p class="muted" data-ur="بیک اپ میں مصنوعات، سیکشن، انوائس اور سیٹنگز شامل ہیں۔ ہر بیک اپ فون کے Documents فولڈر میں بھی خود بخود محفوظ ہوتا ہے — ایپ اَن انسٹال ہونے پر بھی یہ محفوظ رہتا ہے۔" data-en="Backups include products, sections, invoices and settings. Every backup is also saved automatically to your phone's Documents folder — it survives even if the app itself is uninstalled.">بیک اپ میں مصنوعات، سیکشن، انوائس اور سیٹنگز شامل ہیں۔ ہر بیک اپ فون کے Documents فولڈر میں بھی خود بخود محفوظ ہوتا ہے — ایپ اَن انسٹال ہونے پر بھی یہ محفوظ رہتا ہے۔</p>
+        <button id="exportBackupBtn" class="btn btn-primary btn-full" data-ur="بیک اپ محفوظ / شیئر کریں" data-en="Save / share backup">بیک اپ محفوظ / شیئر کریں</button>
+        <button id="restoreBackupBtn" class="btn btn-secondary btn-full" data-ur="فائل سے بحال کریں" data-en="Restore from file">فائل سے بحال کریں</button>
+        <p id="backupMessage" class="form-message"></p>
+        <label class="field-label" data-ur="خودکار بیک اپس (فون میں محفوظ)" data-en="Automatic backups (saved on your phone)">خودکار بیک اپس (فون میں محفوظ)</label>
+        <div id="externalBackupsList" class="settings-list"></div>
+      </div>
+      <div class="settings-panel hidden" data-panel="license"><p class="field-label" data-ur="مشین آئی ڈی" data-en="Machine ID">مشین آئی ڈی</p><div class="machine-id-box" id="settingsMachineId">...</div><div class="license-status-card"><span data-ur="حالت" data-en="Status">حالت</span><strong id="licenseExpiryDisplay">—</strong></div><label class="field-label" data-ur="نیا لائسنس کوڈ" data-en="New license key">نیا لائسنس کوڈ</label><textarea id="renewalKeyInput" class="input-box license-input" rows="3"></textarea><p id="licenseMsg" class="form-message"></p><button id="renewLicenseBtn" class="btn btn-primary btn-full" data-ur="لائسنس تجدید کریں" data-en="Renew license">لائسنس تجدید کریں</button></div>
+      <div class="settings-panel hidden" data-panel="security"><label class="field-label" data-ur="پرانا پن" data-en="Old PIN">پرانا پن</label><input id="oldPassword" type="password" inputmode="numeric" maxlength="4" class="input-box" /><label class="field-label" data-ur="نیا 4 ہندسوں کا پن" data-en="New four-digit PIN">نیا 4 ہندسوں کا پن</label><input id="newPassword" type="password" inputmode="numeric" maxlength="4" class="input-box" /><p id="pwdMsg" class="form-message"></p><button id="changePasswordBtn" class="btn btn-primary btn-full" data-ur="پن تبدیل کریں" data-en="Change PIN">پن تبدیل کریں</button></div>
+      <div class="settings-panel hidden" data-panel="language"><p class="setting-intro" data-ur="انٹرفیس کی زبان منتخب کریں۔ اردو اور English دونوں مکمل طور پر آف لائن کام کرتی ہیں۔" data-en="Choose the interface language. English and Urdu both work completely offline.">انٹرفیس کی زبان منتخب کریں۔ اردو اور English دونوں مکمل طور پر آف لائن کام کرتی ہیں۔</p><div class="language-choice lang-switch"><button class="lang-btn pill-toggle" data-lang="ur">اردو</button><button class="lang-btn pill-toggle" data-lang="en">English</button></div></div>
+      <div class="settings-panel hidden" data-panel="about">
+        <div class="about-brand">
+          <div class="about-logo"><svg viewBox="0 0 200 200"><path d="M100 20 L168 168 L100 132 L32 168 Z M100 74 L128 150 L100 134 L72 150 Z" fill="#0F9F6E" fill-rule="evenodd"/></svg></div>
+          <h3>Adeel POS Mobile</h3>
+          <p>Powered by Adeel IT Solutions</p>
+          <span>Version 2.0 Professional Mobile UX</span>
+          <div class="about-badge" data-ur="FBR رجسٹرڈ کاروبار" data-en="FBR registered business">FBR رجسٹرڈ کاروبار</div>
+        </div>
+        <p class="setting-intro" data-ur="کسی بھی مسئلے یا مدد کے لیے رابطہ کریں — ہم آپ کی مدد کے لیے موجود ہیں۔" data-en="For any issue or help, reach out any time — we're here to help.">کسی بھی مسئلے یا مدد کے لیے رابطہ کریں — ہم آپ کی مدد کے لیے موجود ہیں۔</p>
+        <div class="settings-list">
+          <a class="settings-row" href="tel:+923124927023"><span class="settings-icon">☎</span><span><strong data-ur="کال کریں" data-en="Call us">کال کریں</strong><small class="mono">0312-4927023</small></span><b>›</b></a>
+          <a class="settings-row" href="mailto:adeelitsolution@gmail.com"><span class="settings-icon">✉</span><span><strong data-ur="ای میل کریں" data-en="Email us">ای میل کریں</strong><small>adeelitsolution@gmail.com</small></span><b>›</b></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <input id="productsCsvInput" type="file" accept=".csv,text/csv" class="hidden" />
+  <input id="backupFileInput" type="file" accept=".json,application/json" class="hidden" />
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="core.js"></script>
+  <script src="db.js"></script>
+  <script src="escpos.js"></script>
+  <script src="receipt-image.js"></script>
+  <script src="vendor/nacl-fast.min.js"></script>
+  <script src="license.js"></script>
+  <script src="reset-license.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

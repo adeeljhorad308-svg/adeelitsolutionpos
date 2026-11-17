@@ -1,0 +1,12 @@
+# Never commit signing secrets
+android/keystore.properties
+*.jks
+*.keystore
+
+# Standard local/build junk
+node_modules/
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/

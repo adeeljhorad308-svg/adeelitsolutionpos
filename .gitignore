@@ -1,0 +1,37 @@
+# IDE & System files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Build outputs & caches
+*.apk
+*.aab
+*.aar
+*.jar
+build/
+bin/
+out/
+.gradle/
+
+# Android / Gradle secrets & local configs
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# Private Vendor License Tools, Guides & Secret Keys
+vendor-license-tools/
+START-HERE.md
+*.md
+
+# Node dependencies & web builds
+node_modules/
+App/node_modules/
+App/android/.gradle/
+App/android/build/
+App/android/app/build/
+App/android/local.properties
+App/android/captures/
+App/android/app/build/outputs/

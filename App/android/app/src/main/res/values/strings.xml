@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Adeel POS</string>
+    <string name="title_activity_main">Adeel POS</string>
+    <string name="package_name">com.adeelitsolutions.pos</string>
+    <string name="custom_url_scheme">com.adeelitsolutions.pos</string>
+</resources>
