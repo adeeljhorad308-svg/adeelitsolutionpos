@@ -25,6 +25,7 @@ keystore.properties
 vendor-license-tools/
 START-HERE.md
 *.md
+!README.md
 
 # Node dependencies & web builds
 node_modules/
