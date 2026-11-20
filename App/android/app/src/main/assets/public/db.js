@@ -685,4 +685,66 @@
     listExternalBackups,
     readExternalBackup
   };
+
+  // --- Phase 4: Firebase-Ready Data Repository Abstraction Layer ----------
+  const FirebaseAdapter = {
+    enabled: false,
+    config: null,
+    async init(config) {
+      this.config = config;
+      this.enabled = Boolean(config && config.apiKey && config.projectId);
+      console.log('[FirebaseAdapter] Configured:', this.enabled);
+    },
+    async fetchRemoteProducts() {
+      if (!this.enabled) return null;
+      return null;
+    },
+    async pushRemoteProduct(product) {
+      if (!this.enabled) return false;
+      return true;
+    },
+    async syncInvoicesToCloud(invoice) {
+      if (!this.enabled) return false;
+      return true;
+    }
+  };
+
+  const DataRepository = {
+    async getProducts() {
+      if (FirebaseAdapter.enabled) {
+        const remote = await FirebaseAdapter.fetchRemoteProducts();
+        if (remote && remote.length) return remote;
+      }
+      return await getProducts();
+    },
+
+    async setProducts(products) {
+      await setProducts(products);
+      if (FirebaseAdapter.enabled) {
+        for (const p of products) {
+          await FirebaseAdapter.pushRemoteProduct(p);
+        }
+      }
+    },
+
+    async saveInvoice(invoiceData) {
+      const saved = await saveInvoice(invoiceData);
+      if (FirebaseAdapter.enabled) {
+        await FirebaseAdapter.syncInvoicesToCloud(saved);
+      }
+      return saved;
+    },
+
+    getSections,
+    setSections,
+    getSetting,
+    setSetting,
+    createBackup,
+    restoreBackup,
+    validateBackup,
+
+    Firebase: FirebaseAdapter
+  };
+
+  window.DataRepository = DataRepository;
 })();

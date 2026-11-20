@@ -426,22 +426,43 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .metric-muted { color: var(--muted); }
 .profit-metric strong { color: var(--emerald); }
 .summary-metric strong { display: block; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-variant-numeric: tabular-nums; }
-.scroll-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-.invoice-list, .product-manage-list, .section-manage-list, .settings-list { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--paper); }
-.invoice-row, .product-row, .section-row, .settings-row {
-  width: 100%; min-height: 68px; padding: 11px 13px; border: 0; border-bottom: 1px solid var(--border); background: var(--paper); color: var(--obsidian); text-align: start;
+
+/* Zero-lag GPU-accelerated smooth scrolling lists */
+.scroll-list {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; touch-action: pan-y;
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  content-visibility: auto; contain-intrinsic-size: 1px 80px;
+  will-change: transform; transform: translateZ(0);
 }
-.invoice-row:last-child, .product-row:last-child, .section-row:last-child, .settings-row:last-child { border-bottom: 0; }
-.invoice-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 5px 12px; }
+
+.invoice-list { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--paper); }
+
+/* Responsive Grid Layouts for Products, Sections, and Stock */
+.product-manage-list, .section-manage-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 2px;
+}
+
+.invoice-row, .product-row, .section-row, .settings-row {
+  width: 100%; min-height: 64px; padding: 12px 14px; border: 1px solid var(--border);
+  border-radius: var(--r-lg); background: var(--paper); color: var(--obsidian);
+  text-align: start; box-shadow: var(--shadow); transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.product-row:active, .section-row:active, .settings-row:active {
+  transform: scale(0.985); border-color: var(--emerald);
+}
+
+.invoice-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 5px 12px; border-radius: 0; border: 0; border-bottom: 1px solid var(--border); }
+.invoice-row:last-child { border-bottom: 0; }
 .invoice-row strong { font-family: 'JetBrains Mono', 'Courier New', monospace; direction: ltr; text-align: start; }
 .invoice-row .invoice-total { font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
 .invoice-row small { display: block; margin-top: 3px; color: var(--muted); line-height: 1.35; }
 .invoice-row .print-failed { color: var(--warning); font-weight: 750; }
-/* Held bills: the whole row used to be one implicit tap-to-resume button
-   with only a small trash icon to delete — neither action was clearly
-   labeled. Now every row shows the bill info on top and two explicit,
-   labeled buttons below: a primary "Resume" and a secondary "Discard",
-   so both options are unmistakable and neither is an accidental tap. */
+
 .held-bill-row {
   width: 100%; display: flex; flex-direction: column; gap: 9px; padding: 12px 13px;
   border-bottom: 1px solid var(--border);
@@ -453,9 +474,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .held-bill-info .invoice-total { font-weight: 800; font-variant-numeric: tabular-nums; direction: ltr; }
 .held-bill-row-actions { display: flex; gap: 8px; }
 .held-bill-row-actions .btn { flex: 1; }
-/* One row per automatic (uninstall-proof) backup file — timestamp + name on
-   the left, an explicit "Restore" button on the right, same list language
-   as .held-bill-row/.product-row rather than a bare tap-anywhere row. */
+
 .backup-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px 13px; border-bottom: 1px solid var(--border); }
 .backup-row:last-child { border-bottom: 0; }
 .backup-row strong { display: block; font-variant-numeric: tabular-nums; }
@@ -463,10 +482,48 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .pane-fill { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .compact-search { flex: 0 0 auto; margin-bottom: 8px; }
 .list-caption { flex: 0 0 auto; margin: 0 2px 7px; color: var(--muted); font-size: 12px; }
-.product-row, .section-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+.product-row, .section-row {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+}
+.product-row-top, .section-row-top {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%;
+}
 .product-row strong, .section-row strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
 .product-row small, .section-row small { display: block; margin-top: 2px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .product-price { font-weight: 800; direction: ltr; font-variant-numeric: tabular-nums; }
+
+.card-action-bar {
+  display: flex; gap: 6px; width: 100%; margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--border);
+}
+.btn-card-action {
+  flex: 1; padding: 4px 8px; border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+  background: var(--canvas); color: var(--graphite); font-size: 11px; font-weight: 700;
+  cursor: pointer; text-align: center; transition: background 0.1s ease;
+}
+.btn-card-action:hover, .btn-card-action:active {
+  background: var(--mint); border-color: var(--emerald); color: var(--obsidian);
+}
+
+.stock-card-row {
+  display: flex; flex-direction: column; gap: 8px; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--paper);
+  box-shadow: var(--shadow);
+}
+.stock-card-top {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+}
+.stock-card-actions {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding-top: 6px; border-top: 1px solid var(--border);
+}
+.stock-quick-stepper {
+  display: flex; gap: 4px; align-items: center;
+}
+.stock-stepper-btn {
+  min-width: 34px; height: 32px; border: 1px solid var(--border-strong); border-radius: var(--r-sm);
+  background: var(--canvas); font-weight: 700; font-size: 13px; color: var(--graphite);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.stock-stepper-btn:active { background: var(--mint); border-color: var(--emerald); }
 .toggle-row {
   flex: 0 0 auto; min-height: 72px; padding: 12px 13px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--paper);
   display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px;
@@ -476,16 +533,40 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .toggle-row small { color: var(--muted); margin-top: 2px; font-size: 12px; }
 input[type='checkbox'][role='switch'] { width: 46px; height: 26px; flex: 0 0 auto; accent-color: var(--emerald); }
 .compact-toggle { margin: 14px 0 0; }
-.settings-list { padding: 0; }
-/* text-decoration/cursor resets here matter for the About screen's Call/
-   Email rows, which are real <a href="tel:…">/<a href="mailto:…"> links
-   (not buttons like every other .settings-row) so the OS dialer/mail app
-   opens directly — without this they'd show as underlined, browser-blue text. */
-.settings-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) 20px; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; }
+
+/* Responsive Grid for Settings & Tools (More Screen) */
+.settings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.settings-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 20px; align-items: center; gap: 10px;
+  text-decoration: none; cursor: pointer; border: 1px solid var(--border); border-radius: var(--r-lg);
+  background: var(--paper); padding: 12px 14px; box-shadow: var(--shadow);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.settings-row:hover, .settings-row:active {
+  border-color: var(--emerald); transform: scale(0.985);
+}
 .settings-row strong, .settings-row small { display: block; }
 .settings-row small { color: var(--muted); margin-top: 2px; font-size: 12px; }
 .settings-row b { color: var(--faint); font-size: 25px; font-weight: 400; }
 .settings-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--mint); color: var(--obsidian); display: flex; align-items: center; justify-content: center; font-weight: 800; }
+
+/* Touch Pager Shifter System */
+.pager-container {
+  display: flex; width: 100%; height: 100%; flex: 1 1 auto; overflow: hidden;
+  position: relative; touch-action: pan-y;
+}
+.pager-slide {
+  flex: 0 0 100%; width: 100%; height: 100%; display: flex; flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;
+}
 
 /* Task screens */
 .task-screen {
@@ -560,7 +641,54 @@ html[dir='rtl'] .back-button { transform: rotate(180deg); }
   background: var(--mint); color: var(--emerald); border: 1px solid var(--emerald);
   font-size: 12px; font-weight: 800;
 }
-.toast { position: fixed; z-index: 200; inset-inline: 16px; inset-block-end: calc(82px + env(safe-area-inset-bottom)); min-height: 48px; padding: 12px 15px; border-radius: var(--r-md); background: var(--obsidian); color: #F2F6F3; box-shadow: 0 10px 30px rgba(0,0,0,.2); text-align: center; }
+.toast {
+  position: fixed; z-index: 200; inset-inline: 16px; inset-block-end: calc(82px + env(safe-area-inset-bottom));
+  min-height: 48px; padding: 12px 18px; border-radius: var(--r-md); background: var(--obsidian);
+  color: #F2F6F3; box-shadow: 0 10px 30px rgba(0,0,0,.25); text-align: center;
+  font-weight: 600; font-size: 14px; transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.toast.hidden { opacity: 0; transform: translateY(12px); pointer-events: none; }
+
+/* Reusable Modal Confirmation Backdrop & Dialog System */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 300; background: rgba(11, 13, 12, 0.6);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  animation: modalFadeIn 0.18s ease-out;
+}
+.modal-backdrop.hidden { display: none !important; }
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  width: 100%; max-width: 360px; background: var(--paper); border-radius: var(--r-xl);
+  padding: 22px 20px; text-align: center; box-shadow: 0 20px 45px rgba(0,0,0,0.25);
+  border: 1px solid var(--border); animation: modalSlideUp 0.22s cubic-bezier(0.25, 1, 0.5, 1);
+}
+@keyframes modalSlideUp {
+  from { transform: translateY(18px) scale(0.95); }
+  to { transform: translateY(0) scale(1); }
+}
+
+.modal-icon-wrapper {
+  width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.modal-icon-wrapper.danger { background: rgba(220, 38, 38, 0.12); color: var(--danger); }
+.modal-icon-wrapper.warning { background: rgba(217, 119, 6, 0.12); color: var(--warning); }
+.modal-icon-wrapper.success { background: rgba(15, 159, 110, 0.12); color: var(--emerald); }
+
+.modal-card h3 { margin: 0 0 8px; font-size: 18px; color: var(--obsidian); }
+.modal-card p { margin: 0 0 20px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions .btn { flex: 1; min-height: 46px; }
+
+.settings-svg {
+  width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
 
 html[dir='ltr'] .topnav-brand strong, html[dir='ltr'] .qi-name { text-align: left; }
 html[dir='rtl'] .topnav-brand strong, html[dir='rtl'] .qi-name { text-align: right; }

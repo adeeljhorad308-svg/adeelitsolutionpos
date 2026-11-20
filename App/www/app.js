@@ -212,21 +212,45 @@ async function activateLicense(inputId, messageId, afterActivation) {
   if (typeof afterActivation === 'function') await afterActivation(result);
 }
 
+let failedPinCount = 0;
+let pinLockoutUntil = 0;
+
 async function attemptLogin() {
+  const message = byId('loginError');
+  const now = Date.now();
+
+  if (now < pinLockoutUntil) {
+    const remainingSec = Math.ceil((pinLockoutUntil - now) / 1000);
+    message.textContent = t(`3 ناکام کوششیں! سیکیورٹی کی خاطر ${remainingSec} سیکنڈ انتظار کریں۔`, `3 failed attempts! Please wait ${remainingSec}s for security.`);
+    return;
+  }
+
   const boxes = Array.from(document.querySelectorAll('.pin-box'));
   const entered = boxes.map(box => box.value).join('');
-  const message = byId('loginError');
+
   if (!/^\d{4}$/.test(entered)) {
     message.textContent = t('مکمل 4 ہندسوں کا پن درج کریں۔', 'Enter the complete four-digit PIN.');
     return;
   }
+
   const savedPin = await db.getSetting('password', '0000');
   if (entered !== savedPin) {
-    message.textContent = t('پن درست نہیں۔', 'Incorrect PIN.');
+    failedPinCount++;
+    if (failedPinCount >= 3) {
+      pinLockoutUntil = Date.now() + 30000;
+      failedPinCount = 0;
+      message.textContent = t('3 ناکام کوششیں! سیکیورٹی کی خاطر 30 سیکنڈ انتظار کریں۔', '3 failed attempts! Please wait 30s for security.');
+    } else {
+      const left = 3 - failedPinCount;
+      message.textContent = t(`پن درست نہیں۔ (${left} کوششیں باقی)`, `Incorrect PIN. (${left} attempts left)`);
+    }
     boxes.forEach(box => { box.value = ''; });
     boxes[0]?.focus();
     return;
   }
+
+  failedPinCount = 0;
+  pinLockoutUntil = 0;
   message.textContent = '';
   byId('loginScreen').classList.add('hidden');
   byId('mainApp').classList.remove('hidden');
@@ -1214,10 +1238,37 @@ function renderProductManagement() {
   if (!list.length) {
     container.innerHTML = `<div class="empty-state"><strong>${t('کوئی مصنوعات نہیں', 'No products')}</strong><span>${t('نئی مصنوعات شامل کریں یا CSV درآمد کریں۔', 'Add a product or import a CSV file.')}</span></div>`;
   } else {
-    container.innerHTML = list.map(product => `<button class="product-row" data-product-id="${core.escapeHTML(product.id)}"><span><strong>${core.escapeHTML(product.name)}</strong><small>${product.sectionId ? core.escapeHTML(sectionName(product.sectionId)) : t('بغیر سیکشن', 'No section')}${product.isQuick ? ` · ${t('فوری', 'Quick')}` : ''}</small></span><span class="product-price">${money(product.price)}</span></button>`).join('');
-    container.querySelectorAll('.product-row').forEach(row => row.addEventListener('click', () => openProductEditor(row.dataset.productId)));
+    container.innerHTML = list.map(product => `
+      <div class="product-row">
+        <div class="product-row-top">
+          <span><strong>${core.escapeHTML(product.name)}</strong><small>${product.sectionId ? core.escapeHTML(sectionName(product.sectionId)) : t('بغیر سیکشن', 'No section')}${product.isQuick ? ` · ${t('فوری', 'Quick')}` : ''}</small></span>
+          <span class="product-price">${money(product.price)}</span>
+        </div>
+        <div class="card-action-bar">
+          <button class="btn-card-action" data-edit-product="${core.escapeHTML(product.id)}">✎ ${t('تبدیل کریں', 'Edit')}</button>
+          <button class="btn-card-action" data-dup-product="${core.escapeHTML(product.id)}">📋 ${t('ڈپلیکیٹ', 'Duplicate')}</button>
+        </div>
+      </div>`).join('');
+
+    container.querySelectorAll('[data-edit-product]').forEach(btn => btn.addEventListener('click', () => openProductEditor(btn.dataset.editProduct)));
+    container.querySelectorAll('[data-dup-product]').forEach(btn => btn.addEventListener('click', () => duplicateProduct(btn.dataset.dupProduct)));
   }
   renderSectionsManagement();
+}
+
+async function duplicateProduct(id) {
+  const original = products.find(p => p.id === id);
+  if (!original) return;
+  const clone = {
+    ...original,
+    id: `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    name: `${original.name} (${t('کاپی', 'Copy')})`
+  };
+  products.push(clone);
+  await db.setProducts(products);
+  await db.createBackup('product_duplicate');
+  renderProductManagement();
+  showToast(t('مصنوعات کاپی ہو گئی۔', 'Product duplicated successfully.'));
 }
 
 function renderSectionsManagement() {
@@ -1281,15 +1332,51 @@ async function saveProduct() {
   showToast(t('مصنوعات محفوظ ہو گئی۔', 'Product saved.'));
 }
 
+function openConfirmModal({ title, text, icon = '⚠️', type = 'danger', okText, cancelText, onConfirm }) {
+  byId('confirmModalTitle').textContent = title || t('تصدیق کریں', 'Confirm');
+  byId('confirmModalText').textContent = text || '';
+  byId('confirmModalIcon').textContent = icon;
+  byId('confirmModalIcon').className = `modal-icon-wrapper ${type}`;
+
+  const okBtn = byId('confirmModalOkBtn');
+  const cancelBtn = byId('confirmModalCancelBtn');
+  if (okText) okBtn.textContent = okText;
+  if (cancelText) cancelBtn.textContent = cancelText;
+
+  const modal = byId('confirmModal');
+  modal.classList.remove('hidden');
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    const newOk = okBtn.cloneNode(true);
+    const newCancel = cancelBtn.cloneNode(true);
+    okBtn.replaceWith(newOk);
+    cancelBtn.replaceWith(newCancel);
+  };
+
+  byId('confirmModalCancelBtn').onclick = closeModal;
+  byId('confirmModalOkBtn').onclick = async () => {
+    closeModal();
+    if (onConfirm) await onConfirm();
+  };
+}
+
 async function deleteProduct() {
   const product = products.find(item => item.id === editingProductId);
   if (!product) return;
-  if (!confirm(t(`“${product.name}” حذف کریں؟ پرانے انوائس تبدیل نہیں ہوں گے۔`, `Delete “${product.name}”? Old invoices will not change.`))) return;
-  products = products.filter(item => item.id !== editingProductId);
-  await db.setProducts(products);
-  await db.createBackup('product_delete');
-  requestCloseTask();
-  renderDynamicUI();
+  openConfirmModal({
+    title: t('مصنوعات حذف کریں', 'Delete Product'),
+    text: t(`“${product.name}” حذف کریں؟ پرانے انوائس تبدیل نہیں ہوں گے۔`, `Delete “${product.name}”? Old invoices will not change.`),
+    type: 'danger',
+    onConfirm: async () => {
+      products = products.filter(item => item.id !== editingProductId);
+      await db.setProducts(products);
+      await db.createBackup('product_delete');
+      requestCloseTask();
+      renderDynamicUI();
+      showToast(t('مصنوعات حذف ہو گئی۔', 'Product deleted.'));
+    }
+  });
 }
 
 function openSectionEditor(id = null) {
@@ -1315,10 +1402,6 @@ async function saveSection() {
   else sections.push({ id: db.makeId('s'), name, order: sections.length, active: true });
   await db.setSections(sections);
   sections = await db.getSections();
-  // Creating your first real section is a clear signal you want to use
-  // sections — turn the feature on automatically instead of leaving a
-  // silent separate switch (Products > Sections) that most shopkeepers
-  // never find, which made new sections invisible on the Sale screen.
   if (isNewSection && !sectionsEnabled) {
     sectionsEnabled = true;
     await db.setSetting('sectionsEnabled', 'true');
@@ -1333,14 +1416,21 @@ async function deleteSection() {
   const section = sections.find(item => item.id === editingSectionId);
   if (!section) return;
   const count = products.filter(product => product.sectionId === section.id).length;
-  if (!confirm(t(`“${section.name}” حذف کریں؟ ${count} مصنوعات بغیر سیکشن ہو جائیں گی۔`, `Delete “${section.name}”? ${count} products will become unsectioned.`))) return;
-  products = products.map(product => product.sectionId === section.id ? { ...product, sectionId: '' } : product);
-  sections = sections.filter(item => item.id !== section.id);
-  await db.setProducts(products);
-  await db.setSections(sections);
-  await db.createBackup('section_delete');
-  requestCloseTask();
-  renderDynamicUI();
+  openConfirmModal({
+    title: t('سیکشن حذف کریں', 'Delete Section'),
+    text: t(`“${section.name}” حذف کریں؟ ${count} مصنوعات بغیر سیکشن ہو جائیں گی۔`, `Delete “${section.name}”? ${count} products will become unsectioned.`),
+    type: 'danger',
+    onConfirm: async () => {
+      products = products.map(product => product.sectionId === section.id ? { ...product, sectionId: '' } : product);
+      sections = sections.filter(item => item.id !== section.id);
+      await db.setProducts(products);
+      await db.setSections(sections);
+      await db.createBackup('section_delete');
+      requestCloseTask();
+      renderDynamicUI();
+      showToast(t('سیکشن حذف ہو گیا۔', 'Section deleted.'));
+    }
+  });
 }
 
 function switchProductTab(tab) {
@@ -1449,16 +1539,45 @@ async function renderStockManagement() {
     const costLine = Number(product.cost) > 0
       ? `${t('خرید', 'Cost')} ${Math.round(product.cost)}`
       : `<span class="warn-text">${t('خرید قیمت نہیں', 'No purchase price')}</span>`;
-    return `<button class="settings-row stock-row" data-stock-id="${core.escapeHTML(product.id)}">
-        ${badge}
-        <span><strong>${core.escapeHTML(product.name)}</strong><small>${t('قیمت', 'Price')} ${Math.round(product.price)} · ${costLine}</small></span>
-        <b>›</b>
-      </button>`;
+    return `
+      <div class="stock-card-row">
+        <div class="stock-card-top">
+          ${badge}
+          <span><strong>${core.escapeHTML(product.name)}</strong><small>${t('قیمت', 'Price')} ${Math.round(product.price)} · ${costLine}</small></span>
+          <button class="btn-card-action" data-edit-stock="${core.escapeHTML(product.id)}">✎</button>
+        </div>
+        <div class="stock-card-actions">
+          <span style="font-size:11px;color:var(--muted);">${t('فوری اسٹاک:', 'Quick stock:')}</span>
+          <div class="stock-quick-stepper">
+            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="-1">−</1</button>
+            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="1">+1</button>
+            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="5">+5</button>
+          </div>
+        </div>
+      </div>`;
   }).join('');
 
-  byId('stockManageList').querySelectorAll('[data-stock-id]').forEach(button => {
-    button.addEventListener('click', () => openStockEditor(button.dataset.stockId));
+  byId('stockManageList').querySelectorAll('[data-edit-stock]').forEach(btn => {
+    btn.addEventListener('click', () => openStockEditor(btn.dataset.editStock));
   });
+
+  byId('stockManageList').querySelectorAll('[data-quick-stock]').forEach(btn => {
+    btn.addEventListener('click', () => quickAdjustStock(btn.dataset.quickStock, Number(btn.dataset.delta) || 0));
+  });
+}
+
+async function quickAdjustStock(id, delta) {
+  const productList = await db.getProducts();
+  const product = productList.find(p => p.id === id);
+  if (!product) return;
+  const current = Number(product.stock) || 0;
+  product.stock = Math.max(0, current + delta);
+  await db.setProducts(productList);
+  products = productList;
+  await db.createBackup('stock_quick_adjust');
+  await refreshStockAlertBadge();
+  await renderStockManagement();
+  showToast(t(`اسٹاک اپ ڈیٹ: ${product.stock}`, `Stock updated: ${product.stock}`));
 }
 
 async function openStockEditor(productId) {
@@ -1696,11 +1815,17 @@ async function restoreBackupFile(file) {
   try {
     const snapshot = JSON.parse(await file.text());
     if (!db.validateBackup(snapshot)) throw new Error('invalid');
-    if (!confirm(t('موجودہ ڈیٹا کا حفاظتی بیک اپ بنا کر یہ فائل بحال کریں؟', 'Create a safety backup and restore this file?'))) return;
-    await db.restoreBackup(snapshot);
-    message.className = 'form-message success';
-    message.textContent = t('بیک اپ بحال ہو گیا۔ ایپ دوبارہ کھل رہی ہے۔', 'Backup restored. The app is reloading.');
-    setTimeout(() => location.reload(), 700);
+    openConfirmModal({
+      title: t('بیک اپ بحال کریں', 'Restore Backup'),
+      text: t('موجودہ ڈیٹا کا حفاظتی بیک اپ بنا کر یہ فائل بحال کریں؟', 'Create a safety backup and restore this file?'),
+      type: 'warning',
+      onConfirm: async () => {
+        await db.restoreBackup(snapshot);
+        message.className = 'form-message success';
+        message.textContent = t('بیک اپ بحال ہو گیا۔ ایپ دوبارہ کھل رہی ہے۔', 'Backup restored. The app is reloading.');
+        setTimeout(() => location.reload(), 700);
+      }
+    });
   } catch (_) {
     message.className = 'form-message error';
     message.textContent = t('یہ درست Adeel POS بیک اپ فائل نہیں۔', 'This is not a valid Adeel POS backup file.');
@@ -1726,11 +1851,17 @@ async function restoreExternalBackupByPath(path) {
   try {
     const snapshot = await db.readExternalBackup(path);
     if (!db.validateBackup(snapshot)) throw new Error('invalid');
-    if (!confirm(t('موجودہ ڈیٹا کا حفاظتی بیک اپ بنا کر یہ بیک اپ بحال کریں؟', 'Create a safety backup and restore this backup?'))) return;
-    await db.restoreBackup(snapshot);
-    message.className = 'form-message success';
-    message.textContent = t('بیک اپ بحال ہو گیا۔ ایپ دوبارہ کھل رہی ہے۔', 'Backup restored. The app is reloading.');
-    setTimeout(() => location.reload(), 700);
+    openConfirmModal({
+      title: t('بیک اپ بحال کریں', 'Restore Backup'),
+      text: t('موجودہ ڈیٹا کا حفاظتی بیک اپ بنا کر یہ بیک اپ بحال کریں؟', 'Create a safety backup and restore this backup?'),
+      type: 'warning',
+      onConfirm: async () => {
+        await db.restoreBackup(snapshot);
+        message.className = 'form-message success';
+        message.textContent = t('بیک اپ بحال ہو گیا۔ ایپ دوبارہ کھل رہی ہے۔', 'Backup restored. The app is reloading.');
+        setTimeout(() => location.reload(), 700);
+      }
+    });
   } catch (_) {
     message.className = 'form-message error';
     message.textContent = t('یہ بیک اپ بحال نہیں ہو سکا۔', 'This backup could not be restored.');
@@ -2218,6 +2349,9 @@ function setupEvents() {
   document.querySelectorAll('[data-close-task]').forEach(button => button.addEventListener('click', requestCloseTask));
   window.addEventListener('popstate', closeTopTask);
   Capacitor.Plugins.App.addListener('backButton', handleHardwareBack);
+
+  setupPagerShifters();
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       hiddenAt = Date.now();
@@ -2227,6 +2361,39 @@ function setupEvents() {
       showLoginScreen();
     }
   });
+}
+
+function setupPagerShifters() {
+  const attachSwipe = (elementId, onNext, onPrev) => {
+    const el = byId(elementId);
+    if (!el) return;
+    let startX = 0;
+    let startY = 0;
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    el.addEventListener('touchend', e => {
+      if (e.changedTouches.length === 1) {
+        const diffX = e.changedTouches[0].clientX - startX;
+        const diffY = Math.abs(e.changedTouches[0].clientY - startY);
+        if (Math.abs(diffX) > 60 && diffY < 45) {
+          const isRTL = document.documentElement.dir === 'rtl';
+          if ((diffX < 0 && !isRTL) || (diffX > 0 && isRTL)) {
+            onNext();
+          } else {
+            onPrev();
+          }
+        }
+      }
+    }, { passive: true });
+  };
+
+  attachSwipe('productsScreen', () => switchProductTab('sections'), () => switchProductTab('products'));
+  attachSwipe('reportsScreen', () => loadReportTab('month'), () => loadReportTab('today'));
 }
 
 boot().catch(() => {
