@@ -1567,10 +1567,6 @@ async function renderStockManagement() {
     card.addEventListener('click', () => openStockEditor(card.dataset.editStock));
   });
 }
-  byId('stockManageList').querySelectorAll('[data-quick-stock]').forEach(btn => {
-    btn.addEventListener('click', () => quickAdjustStock(btn.dataset.quickStock, Number(btn.dataset.delta) || 0));
-  });
-}
 
 async function quickAdjustStock(id, delta) {
   const productList = await db.getProducts();
@@ -2437,6 +2433,10 @@ function setupPagerShifters() {
             if (nextIndex !== currentIndex) {
               showMainScreen(MAIN_SCREENS[nextIndex]);
             }
+          }
+        }
+      }
+    }, { passive: true });
   }
 }
 
