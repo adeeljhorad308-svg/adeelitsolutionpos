@@ -378,9 +378,13 @@ function handleHardwareBack() {
     armExitOnNextBack();
     return;
   }
-  // Logged in: close any open task-screen/overlay first (one layer at a time).
   if (taskStack.length) {
     history.back();
+    return;
+  }
+  if (currentScreen === 'products' && sectionShortcutOrigin === 'more') {
+    sectionShortcutOrigin = null;
+    showMainScreen('more');
     return;
   }
   if (currentScreen !== 'billing') {
@@ -2313,7 +2317,11 @@ function setupEvents() {
   byId('stockHistoryBtn').addEventListener('click', async () => { await renderStockHistory(); openTask('stockHistoryTask'); });
 
   document.querySelectorAll('[data-settings-panel]').forEach(button => button.addEventListener('click', () => openSettingsPanel(button.dataset.settingsPanel)));
-  byId('productOrganizationShortcut').addEventListener('click', () => { showMainScreen('products'); switchProductTab('sections'); });
+  byId('productOrganizationShortcut').addEventListener('click', () => {
+    sectionShortcutOrigin = 'more';
+    showMainScreen('products');
+    switchProductTab('sections');
+  });
   byId('openRenewalBtn').addEventListener('click', () => openSettingsPanel('license'));
   byId('saveShopDetailsBtn').addEventListener('click', saveShopDetails);
   byId('uploadLogoBtn').addEventListener('click', () => byId('shopLogoInput').click());
@@ -2363,6 +2371,9 @@ function setupEvents() {
   });
 }
 
+const MAIN_SCREENS = ['billing', 'reports', 'products', 'stock', 'more'];
+let sectionShortcutOrigin = null;
+
 function setupPagerShifters() {
   const attachSwipe = (elementId, onNext, onPrev) => {
     const el = byId(elementId);
@@ -2394,6 +2405,41 @@ function setupPagerShifters() {
 
   attachSwipe('productsScreen', () => switchProductTab('sections'), () => switchProductTab('products'));
   attachSwipe('reportsScreen', () => loadReportTab('month'), () => loadReportTab('today'));
+
+  // Main Screens Touch Pager Shifter (Swiping across Sale -> Reports -> Products -> Stock -> More)
+  const mainContent = document.querySelector('main.content');
+  if (mainContent) {
+    let startX = 0;
+    let startY = 0;
+    mainContent.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    mainContent.addEventListener('touchend', e => {
+      if (e.changedTouches.length === 1) {
+        const diffX = e.changedTouches[0].clientX - startX;
+        const diffY = Math.abs(e.changedTouches[0].clientY - startY);
+        if (Math.abs(diffX) > 75 && diffY < 45 && taskStack.length === 0) {
+          const isRTL = document.documentElement.dir === 'rtl';
+          const currentIndex = MAIN_SCREENS.indexOf(currentScreen);
+          if (currentIndex !== -1) {
+            let nextIndex = currentIndex;
+            if ((diffX < 0 && !isRTL) || (diffX > 0 && isRTL)) {
+              nextIndex = Math.min(MAIN_SCREENS.length - 1, currentIndex + 1);
+            } else {
+              nextIndex = Math.max(0, currentIndex - 1);
+            }
+            if (nextIndex !== currentIndex) {
+              showMainScreen(MAIN_SCREENS[nextIndex]);
+            }
+          }
+        }
+      }
+    }, { passive: true });
+  }
 }
 
 boot().catch(() => {

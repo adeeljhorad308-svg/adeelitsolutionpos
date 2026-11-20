@@ -196,7 +196,6 @@
           </button>
         </div>
         <div id="productsPane" class="pane-fill">
-          <p class="pane-intro" data-ur="اپنی تمام مصنوعات یہاں شامل اور مینج کریں — CSV میں نام، قیمت، سیکشن، اسٹاک اور خرید قیمت سب ایک ہی فائل میں شامل ہو سکتے ہیں۔" data-en="Add and manage every product here — one CSV can carry name, price, section, stock and cost all together.">اپنی تمام مصنوعات یہاں شامل اور مینج کریں — CSV میں نام، قیمت، سیکشن، اسٹاک اور خرید قیمت سب ایک ہی فائل میں شامل ہو سکتے ہیں۔</p>
           <div class="printer-action-row">
             <button id="exportProductsCsvBtn" class="btn btn-secondary btn-compact" type="button" data-ur="CSV ایکسپورٹ" data-en="Export CSV">CSV ایکسپورٹ</button>
             <button id="importProductsBtn" class="btn btn-secondary btn-compact" type="button" data-ur="CSV امپورٹ" data-en="Import CSV">CSV امپورٹ</button>
@@ -209,7 +208,6 @@
           <div id="productManageList" class="scroll-list product-manage-list"></div>
         </div>
         <div id="sectionsPane" class="pane-fill hidden">
-          <p class="pane-intro" data-ur="سیکشن آپ کی مصنوعات کو زمروں (جیسے مشروبات، بیکری) میں تقسیم کرتے ہیں۔" data-en="Sections group your products into categories (like Drinks, Bakery) for faster billing.">سیکشن آپ کی مصنوعات کو زمروں (جیسے مشروبات، بیکری) میں تقسیم کرتے ہیں۔</p>
           <label class="toggle-row">
             <span><strong data-ur="مصنوعات کے سیکشن" data-en="Product sections">مصنوعات کے سیکشن</strong><small data-ur="ضرورت کے مطابق فعال یا بند کریں" data-en="Enable only when your shop needs them">ضرورت کے مطابق فعال یا بند کریں</small></span>
             <input id="sectionsEnabledToggle" type="checkbox" role="switch" />
@@ -220,44 +218,44 @@
       </section>
 
       <section id="stockScreen" class="content-screen stock-screen hidden">
-        <div class="screen-toolbar">
-          <div>
-            <p class="eyebrow" data-ur="انوینٹری" data-en="Inventory">انوینٹری</p>
+        <div class="compact-screen-header">
+          <div class="compact-header-title">
             <h2 data-ur="اسٹاک" data-en="Stock">اسٹاک</h2>
+            <div class="stock-header-controls">
+              <label class="compact-switch-label">
+                <span data-ur="ٹریکنگ" data-en="Tracking">ٹریکنگ</span>
+                <input id="stockTrackingEnabledToggle" type="checkbox" role="switch" />
+              </label>
+              <button id="stockHistoryBtn" class="btn btn-secondary btn-compact" type="button" data-ur="تاریخ" data-en="History">تاریخ</button>
+            </div>
           </div>
-        </div>
-        <div id="stockPane" class="pane-fill">
-          <p class="pane-intro" data-ur="ہر مصنوعات کا اسٹاک لیول یہاں مینج کریں۔ نام، قیمت، سیکشن سمیت مکمل CSV اب مصنوعات اسکرین پر ہے — یہاں صرف اسٹاک کی تبدیلیوں کی تاریخ دیکھیں۔" data-en="Manage every product's stock level here. The full CSV (name, price, section, stock and cost together) now lives on the Products screen — check History here for every past stock change.">ہر مصنوعات کا اسٹاک لیول یہاں مینج کریں۔ نام، قیمت، سیکشن سمیت مکمل CSV اب مصنوعات اسکرین پر ہے — یہاں صرف اسٹاک کی تبدیلیوں کی تاریخ دیکھیں۔</p>
-          <label class="toggle-row">
-            <span><strong data-ur="اسٹاک ٹریکنگ" data-en="Stock tracking">اسٹاک ٹریکنگ</strong><small data-ur="بند ہونے پر 'ختم/کم' الرٹس کہیں نہیں دکھیں گے" data-en="When off, no 'out/low' alerts show anywhere, including the Stock tab badge">بند ہونے پر 'ختم/کم' الرٹس کہیں نہیں دکھیں گے</small></span>
-            <input id="stockTrackingEnabledToggle" type="checkbox" role="switch" />
-          </label>
-          <div id="stockSummary" class="stock-summary"></div>
-          <button id="stockHistoryBtn" class="btn btn-secondary btn-full" type="button" data-ur="تاریخ دیکھیں" data-en="View history">تاریخ دیکھیں</button>
-          <label class="search-box compact-search">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input id="stockSearchInput" type="search" autocomplete="off" data-ur-placeholder="اسٹاک تلاش کریں" data-en-placeholder="Search stock" placeholder="اسٹاک تلاش کریں" />
-          </label>
-          <label class="toggle-row compact-toggle">
-            <span><strong data-ur="صرف کم اسٹاک" data-en="Only low stock">صرف کم اسٹاک</strong><small data-ur="جن کا اسٹاک ختم ہونے والا ہے" data-en="Items running out soon">جن کا اسٹاک ختم ہونے والا ہے</small></span>
-            <input id="lowStockOnlyToggle" type="checkbox" role="switch" />
-          </label>
+          <div id="stockSummary" class="stock-summary-bar"></div>
+          <div class="stock-filter-row">
+            <label class="search-box compact-search flex-1">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="stockSearchInput" type="search" autocomplete="off" data-ur-placeholder="اسٹاک تلاش کریں" data-en-placeholder="Search stock" placeholder="اسٹاک تلاش کریں" />
+            </label>
+            <label class="pill-checkbox-filter">
+              <input id="lowStockOnlyToggle" type="checkbox" />
+              <span data-ur="⚠️ کم اسٹاک" data-en="⚠️ Low Stock">⚠️ کم اسٹاک</span>
+            </label>
+          </div>
           <div id="stockCountText" class="list-caption"></div>
-          <div id="stockManageList" class="scroll-list product-manage-list"></div>
         </div>
+        <div id="stockManageList" class="scroll-list product-manage-list flex-1"></div>
       </section>
 
       <section id="moreScreen" class="content-screen more-screen hidden">
-        <div class="screen-toolbar">
-          <div><p class="eyebrow" data-ur="کنٹرول" data-en="Control">کنٹرول</p><h2 data-ur="مزید" data-en="More">مزید</h2></div>
+        <div class="screen-toolbar compact-more-toolbar">
+          <h2 data-ur="مزید سیٹنگز" data-en="More Settings">مزید سیٹنگز</h2>
         </div>
-        <div class="settings-list scroll-list">
-          <button class="settings-row" data-settings-panel="shop"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span><strong data-ur="دکان اور رسید" data-en="Shop & receipt">دکان اور رسید</strong><small data-ur="نام، فون اور رسید کی تفصیلات" data-en="Name, phone and receipt details">نام، فون اور رسید کی تفصیلات</small></span><b>›</b></button>
-          <button class="settings-row" data-settings-panel="printer"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg></span><span><strong data-ur="پرنٹر" data-en="Printer">پرنٹر</strong><small data-ur="ٹیسٹ پرنٹ اور پرنٹر کی حالت" data-en="Test print and printer status">ٹیسٹ پرنٹ اور پرنٹر کی حالت</small></span><b>›</b></button>
-          <button class="settings-row" data-settings-panel="backup"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></span><span><strong data-ur="بیک اپ اور بحالی" data-en="Backup & recovery">بیک اپ اور بحالی</strong><small id="backupStatusSummary" data-ur="آخری بیک اپ چیک کریں" data-en="Check your last backup">آخری بیک اپ چیک کریں</small></span><b>›</b></button>
-          <button class="settings-row" id="productOrganizationShortcut"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span><strong data-ur="سیکشن شارٹ کٹ" data-en="Sections shortcut">سیکشن شارٹ کٹ</strong><small data-ur="مصنوعات ⟵ سیکشن ٹیب کھولتا ہے، الگ اسکرین نہیں" data-en="Opens the Sections tab inside Products — not a separate screen">مصنوعات ⟵ سیکشن ٹیب کھولتا ہے، الگ اسکرین نہیں</small></span><b>›</b></button>
+        <div class="settings-list scroll-list grid-settings-2col">
+          <button class="settings-row" data-settings-panel="shop"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span><strong data-ur="دکان اور رسید" data-en="Shop & receipt">دکان اور رسید</strong><small data-ur="نام، فون اور رسید" data-en="Name & phone">نام، فون اور رسید</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="printer"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg></span><span><strong data-ur="پرنٹر" data-en="Printer">پرنٹر</strong><small data-ur="پرنٹر سیٹنگز" data-en="Printer status">پرنٹر سیٹنگز</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="backup"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></span><span><strong data-ur="بیک اپ اور بحالی" data-en="Backup & recovery">بیک اپ اور بحالی</strong><small id="backupStatusSummary" data-ur="آخری بیک اپ" data-en="Last backup">آخری بیک اپ</small></span><b>›</b></button>
+          <button class="settings-row" id="productOrganizationShortcut"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span><strong data-ur="سیکشن شارٹ کٹ" data-en="Sections shortcut">سیکشن شارٹ کٹ</strong><small data-ur="مصنوعات کے سیکشن" data-en="Product sections">مصنوعات کے سیکشن</small></span><b>›</b></button>
           <button class="settings-row" data-settings-panel="license"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M12 2l8 4.5v9L12 22l-8-6.5v-9z"/></svg></span><span><strong data-ur="لائسنس" data-en="License">لائسنس</strong><small id="licenseStatusSummary"></small></span><b>›</b></button>
-          <button class="settings-row" data-settings-panel="security"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span><strong data-ur="پن اور سیکیورٹی" data-en="PIN & security">PIN & security</strong><small data-ur="چار ہندسوں کا پن تبدیل کریں" data-en="Change the four-digit PIN">چار ہندسوں کا پن تبدیل کریں</small></span><b>›</b></button>
+          <button class="settings-row" data-settings-panel="security"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span><strong data-ur="پن اور سیکیورٹی" data-en="PIN & security">PIN & security</strong><small data-ur="پن تبدیل کریں" data-en="Change PIN">پن تبدیل کریں</small></span><b>›</b></button>
           <button class="settings-row" data-settings-panel="language"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><path d="M5 8h14M12 4v4M10 12c.5 3 2.5 6 6 8M6 20l5-10 5 10"/></svg></span><span><strong data-ur="زبان" data-en="Language">زبان</strong><small data-ur="اردو یا English" data-en="English or Urdu">اردو یا English</small></span><b>›</b></button>
           <button class="settings-row" data-settings-panel="about"><span class="settings-icon"><svg viewBox="0 0 24 24" class="settings-svg"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span><span><strong data-ur="مدد اور معلومات" data-en="Help & about">مدد اور معلومات</strong><small>Adeel IT Solutions</small></span><b>›</b></button>
         </div>

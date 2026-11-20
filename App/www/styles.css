@@ -293,8 +293,18 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   border-bottom: 1px solid #F3D5A4; display: flex; align-items: center; gap: 8px; font-size: 13px;
 }
 .persistent-banner > span { flex: 1; }
-.content { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; }
-.content-screen { width: 100%; height: 100%; min-height: 0; }
+.content { flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; touch-action: pan-y; }
+.content-screen {
+  position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0;
+  transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease;
+  will-change: transform, opacity;
+}
+.content-screen.hidden {
+  display: flex !important; opacity: 0; pointer-events: none;
+  transform: translateX(100%);
+}
+html[dir='rtl'] .content-screen.hidden { transform: translateX(-100%); }
+
 .bottomnav {
   flex: 0 0 auto; min-height: calc(64px + env(safe-area-inset-bottom)); padding: 4px 4px env(safe-area-inset-bottom);
   display: grid; grid-template-columns: repeat(5, 1fr); background: var(--paper); border-top: 1px solid var(--border); z-index: 20;
@@ -534,29 +544,74 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 input[type='checkbox'][role='switch'] { width: 46px; height: 26px; flex: 0 0 auto; accent-color: var(--emerald); }
 .compact-toggle { margin: 14px 0 0; }
 
-/* Responsive Grid for Settings & Tools (More Screen) */
-.settings-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
-  border: 0;
-  background: transparent;
-  padding: 0;
+/* Compact Stock Header (Fixes Screenshot 1 bulky layout) */
+.compact-screen-header {
+  flex: 0 0 auto; padding: 10px 12px; background: var(--paper); border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
 }
+.compact-header-title {
+  display: flex; justify-content: space-between; align-items: center; width: 100%;
+}
+.compact-header-title h2 { margin: 0; font-size: 20px; font-weight: 800; }
+.stock-header-controls { display: flex; align-items: center; gap: 10px; }
+.compact-switch-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; }
+.compact-switch-label input { width: 38px; height: 22px; accent-color: var(--emerald); }
 
+.stock-summary-bar {
+  display: flex; gap: 6px; width: 100%;
+}
+.stock-summary-bar .stock-chip {
+  flex: 1; min-width: 0; background: var(--canvas); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 5px 6px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px;
+}
+.stock-summary-bar .stock-chip strong { font-size: 13px; line-height: 1; }
+.stock-summary-bar .stock-chip span { color: var(--muted); font-size: 10px; margin: 0; }
+.stock-summary-bar .stock-chip.warn { border-color: #D97706; background: rgba(217, 119, 6, 0.08); }
+.stock-summary-bar .stock-chip.danger { border-color: var(--danger); background: rgba(220, 38, 38, 0.08); }
+
+.stock-filter-row {
+  display: flex; gap: 8px; align-items: center; width: 100%;
+}
+.flex-1 { flex: 1; min-width: 0; }
+.pill-checkbox-filter {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--border-strong);
+  border-radius: var(--r-md); background: var(--canvas); font-size: 11px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; height: 44px; color: var(--graphite);
+}
+.pill-checkbox-filter input { width: 16px; height: 16px; accent-color: var(--emerald); }
+
+/* Compact More Screen 2-Column Grid (Fixes Screenshot 2 bulkiness) */
+.grid-settings-2col {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 10px;
+  border: 0; background: transparent;
+}
+.grid-settings-2col .settings-row {
+  min-height: 56px; padding: 8px 10px; gap: 8px; border-radius: var(--r-md);
+  grid-template-columns: 32px minmax(0, 1fr) 14px;
+}
+.grid-settings-2col .settings-icon { width: 32px; height: 32px; border-radius: 8px; }
+.grid-settings-2col .settings-row strong { font-size: 13px; font-weight: 750; }
+.grid-settings-2col .settings-row small { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.compact-more-toolbar { padding: 10px 12px; }
+.compact-more-toolbar h2 { margin: 0; font-size: 20px; font-weight: 800; }
+
+.settings-list {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; border: 0; background: transparent; padding: 10px;
+}
 .settings-row {
-  display: grid; grid-template-columns: 40px minmax(0, 1fr) 20px; align-items: center; gap: 10px;
-  text-decoration: none; cursor: pointer; border: 1px solid var(--border); border-radius: var(--r-lg);
-  background: var(--paper); padding: 12px 14px; box-shadow: var(--shadow);
+  display: grid; grid-template-columns: 32px minmax(0, 1fr) 14px; align-items: center; gap: 8px;
+  text-decoration: none; cursor: pointer; border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--paper); padding: 8px 10px; box-shadow: var(--shadow);
   transition: transform 0.12s ease, border-color 0.12s ease;
 }
 .settings-row:hover, .settings-row:active {
   border-color: var(--emerald); transform: scale(0.985);
 }
 .settings-row strong, .settings-row small { display: block; }
-.settings-row small { color: var(--muted); margin-top: 2px; font-size: 12px; }
-.settings-row b { color: var(--faint); font-size: 25px; font-weight: 400; }
-.settings-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--mint); color: var(--obsidian); display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.settings-row small { color: var(--muted); margin-top: 1px; font-size: 10px; }
+.settings-row b { color: var(--faint); font-size: 20px; font-weight: 400; }
+.settings-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--mint); color: var(--obsidian); display: flex; align-items: center; justify-content: center; font-weight: 800; }
 
 /* Touch Pager Shifter System */
 .pager-container {
