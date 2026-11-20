@@ -14,31 +14,55 @@
     try { return JSON.parse(value); } catch (_) { return fallback; }
   }
 
+  function getPreferences() {
+    return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences;
+  }
+
   async function readJson(key, fallback) {
-    const { value } = await Preferences.get({ key });
-    return safeParse(value, fallback);
+    try {
+      const Prefs = getPreferences();
+      if (Prefs && typeof Prefs.get === 'function') {
+        const { value } = await Prefs.get({ key });
+        return safeParse(value, fallback);
+      }
+    } catch (_) {}
+    return safeParse(localStorage.getItem(key), fallback);
   }
 
   async function writeJson(key, value) {
-    await Preferences.set({ key, value: JSON.stringify(value) });
-  }
-
-  async function readInvoices() {
-    const invoices = await readJson('invoices', []);
-    return Array.isArray(invoices) ? invoices : [];
-  }
-
-  async function writeInvoices(invoices) {
-    await writeJson('invoices', Array.isArray(invoices) ? invoices : []);
+    const jsonStr = JSON.stringify(value);
+    try {
+      const Prefs = getPreferences();
+      if (Prefs && typeof Prefs.set === 'function') {
+        await Prefs.set({ key, value: jsonStr });
+        return;
+      }
+    } catch (_) {}
+    localStorage.setItem(key, jsonStr);
   }
 
   async function getSetting(key, fallback = null) {
-    const { value } = await Preferences.get({ key: 'setting_' + key });
-    return value !== null && value !== undefined ? value : fallback;
+    try {
+      const Prefs = getPreferences();
+      if (Prefs && typeof Prefs.get === 'function') {
+        const { value } = await Prefs.get({ key: 'setting_' + key });
+        return value !== null && value !== undefined ? value : fallback;
+      }
+    } catch (_) {}
+    const val = localStorage.getItem('setting_' + key);
+    return val !== null ? val : fallback;
   }
 
   async function setSetting(key, value) {
-    await Preferences.set({ key: 'setting_' + key, value: String(value) });
+    const strVal = String(value);
+    try {
+      const Prefs = getPreferences();
+      if (Prefs && typeof Prefs.set === 'function') {
+        await Prefs.set({ key: 'setting_' + key, value: strVal });
+        return;
+      }
+    } catch (_) {}
+    localStorage.setItem('setting_' + key, strVal);
   }
 
   function nextNumericValue(items, field) {

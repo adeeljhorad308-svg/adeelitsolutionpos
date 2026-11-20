@@ -10,9 +10,21 @@
   let importedPublicKey = null;
 
   async function getMachineId() {
-    const { Device } = Capacitor.Plugins;
-    const info = await Device.getId();
-    return String(info.identifier || '').toUpperCase().replace(/-/g, '').slice(0, 16);
+    try {
+      const pluginDev = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Device;
+      if (pluginDev && typeof pluginDev.getId === 'function') {
+        const info = await pluginDev.getId();
+        if (info && info.identifier) {
+          return String(info.identifier).toUpperCase().replace(/-/g, '').slice(0, 16);
+        }
+      }
+    } catch (_) {}
+    let fallbackId = localStorage.getItem('adeel_fallback_machine_id');
+    if (!fallbackId) {
+      fallbackId = 'ADEEL' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      localStorage.setItem('adeel_fallback_machine_id', fallbackId);
+    }
+    return fallbackId.toUpperCase().replace(/-/g, '').slice(0, 16);
   }
 
   function decodeBase64(value) {
