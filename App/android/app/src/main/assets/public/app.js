@@ -2437,14 +2437,19 @@ function setupPagerShifters() {
             if (nextIndex !== currentIndex) {
               showMainScreen(MAIN_SCREENS[nextIndex]);
             }
-          }
-        }
-      }
-    }, { passive: true });
   }
 }
 
-boot().catch(() => {
-  byId('activationScreen').classList.remove('hidden');
-  byId('activationError').textContent = t('ایپ شروع نہیں ہو سکی۔ دوبارہ کھولیں۔', 'The app could not start. Please reopen it.');
-});
+const runBoot = () => {
+  boot().catch(() => {
+    byId('activationScreen')?.classList.remove('hidden');
+    const err = byId('activationError');
+    if (err) err.textContent = t('ایپ شروع نہیں ہو سکی۔ دوبارہ کھولیں۔', 'The app could not start. Please reopen it.');
+  });
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', runBoot);
+} else {
+  runBoot();
+}
