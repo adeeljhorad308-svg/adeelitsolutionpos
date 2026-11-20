@@ -1438,10 +1438,20 @@ async function deleteSection() {
 }
 
 function switchProductTab(tab) {
-  document.querySelectorAll('.products-subtab').forEach(button => button.classList.toggle('active', button.dataset.productTab === tab));
-  byId('productsPane').classList.toggle('hidden', tab !== 'products');
-  byId('sectionsPane').classList.toggle('hidden', tab !== 'sections');
-  renderProductManagement();
+  document.querySelectorAll('.products-subtab').forEach(button => {
+    button.classList.toggle('active', button.dataset.productTab === tab);
+  });
+  const productsPane = byId('productsPane');
+  const sectionsPane = byId('sectionsPane');
+  if (tab === 'products') {
+    productsPane.classList.remove('hidden');
+    sectionsPane.classList.add('hidden');
+    renderProductManagement();
+  } else {
+    sectionsPane.classList.remove('hidden');
+    productsPane.classList.add('hidden');
+    renderSectionsManagement();
+  }
 }
 
 // --- Stock management ----------------------------------------------------
@@ -1544,27 +1554,19 @@ async function renderStockManagement() {
       ? `${t('خرید', 'Cost')} ${Math.round(product.cost)}`
       : `<span class="warn-text">${t('خرید قیمت نہیں', 'No purchase price')}</span>`;
     return `
-      <div class="stock-card-row">
+      <div class="stock-card-row" data-edit-stock="${core.escapeHTML(product.id)}" style="cursor: pointer;">
         <div class="stock-card-top">
           ${badge}
           <span><strong>${core.escapeHTML(product.name)}</strong><small>${t('قیمت', 'Price')} ${Math.round(product.price)} · ${costLine}</small></span>
-          <button class="btn-card-action" data-edit-stock="${core.escapeHTML(product.id)}">✎</button>
-        </div>
-        <div class="stock-card-actions">
-          <span style="font-size:11px;color:var(--muted);">${t('فوری اسٹاک:', 'Quick stock:')}</span>
-          <div class="stock-quick-stepper">
-            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="-1">−</1</button>
-            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="1">+1</button>
-            <button class="stock-stepper-btn" data-quick-stock="${core.escapeHTML(product.id)}" data-delta="5">+5</button>
-          </div>
+          <button class="btn btn-secondary btn-compact" type="button">✎ ${t('تبدیل', 'Edit')}</button>
         </div>
       </div>`;
   }).join('');
 
-  byId('stockManageList').querySelectorAll('[data-edit-stock]').forEach(btn => {
-    btn.addEventListener('click', () => openStockEditor(btn.dataset.editStock));
+  byId('stockManageList').querySelectorAll('[data-edit-stock]').forEach(card => {
+    card.addEventListener('click', () => openStockEditor(card.dataset.editStock));
   });
-
+}
   byId('stockManageList').querySelectorAll('[data-quick-stock]').forEach(btn => {
     btn.addEventListener('click', () => quickAdjustStock(btn.dataset.quickStock, Number(btn.dataset.delta) || 0));
   });
