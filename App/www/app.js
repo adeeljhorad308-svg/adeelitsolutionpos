@@ -1243,19 +1243,14 @@ function renderProductManagement() {
     container.innerHTML = `<div class="empty-state"><strong>${t('کوئی مصنوعات نہیں', 'No products')}</strong><span>${t('نئی مصنوعات شامل کریں یا CSV درآمد کریں۔', 'Add a product or import a CSV file.')}</span></div>`;
   } else {
     container.innerHTML = list.map(product => `
-      <div class="product-row">
-        <div class="product-row-top">
-          <span><strong>${core.escapeHTML(product.name)}</strong><small>${product.sectionId ? core.escapeHTML(sectionName(product.sectionId)) : t('بغیر سیکشن', 'No section')}${product.isQuick ? ` · ${t('فوری', 'Quick')}` : ''}</small></span>
-          <span class="product-price">${money(product.price)}</span>
-        </div>
-        <div class="card-action-bar">
-          <button class="btn-card-action" data-edit-product="${core.escapeHTML(product.id)}">✎ ${t('تبدیل کریں', 'Edit')}</button>
-          <button class="btn-card-action" data-dup-product="${core.escapeHTML(product.id)}">📋 ${t('ڈپلیکیٹ', 'Duplicate')}</button>
-        </div>
-      </div>`).join('');
+      <button class="product-row" data-product-id="${core.escapeHTML(product.id)}">
+        <span><strong>${core.escapeHTML(product.name)}</strong><small>${product.sectionId ? core.escapeHTML(sectionName(product.sectionId)) : t('بغیر سیکشن', 'No section')}${product.isQuick ? ` · ${t('فوری', 'Quick')}` : ''}</small></span>
+        <span class="product-price">${money(product.price)}</span>
+      </button>`).join('');
 
-    container.querySelectorAll('[data-edit-product]').forEach(btn => btn.addEventListener('click', () => openProductEditor(btn.dataset.editProduct)));
-    container.querySelectorAll('[data-dup-product]').forEach(btn => btn.addEventListener('click', () => duplicateProduct(btn.dataset.dupProduct)));
+    container.querySelectorAll('.product-row').forEach(row => {
+      row.addEventListener('click', () => openProductEditor(row.dataset.productId));
+    });
   }
   renderSectionsManagement();
 }
