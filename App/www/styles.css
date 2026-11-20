@@ -492,14 +492,35 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .pane-fill { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .compact-search { flex: 0 0 auto; margin-bottom: 8px; }
 .list-caption { flex: 0 0 auto; margin: 0 2px 7px; color: var(--muted); font-size: 12px; }
-.product-row, .section-row {
+.product-row {
   display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
 }
-.product-row-top, .section-row-top {
+.section-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  color: var(--obsidian);
+  text-align: start;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.section-row:active {
+  transform: scale(0.985);
+  border-color: var(--emerald);
+}
+.product-row-top {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%;
 }
 .product-row strong, .section-row strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
 .product-row small, .section-row small { display: block; margin-top: 2px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.section-row b { color: var(--faint); font-size: 22px; font-weight: 400; }
 .product-price { font-weight: 800; direction: ltr; font-variant-numeric: tabular-nums; }
 
 .card-action-bar {
